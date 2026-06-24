@@ -19,7 +19,7 @@ jobs:
           cache: pip
 
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,pipelines]"
 
       - name: Lint
         run: ruff check .
