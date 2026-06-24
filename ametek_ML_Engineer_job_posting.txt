@@ -1,0 +1,64 @@
+Job Title:  Machine Learning Engineer
+Location:  Herndon, VA, US, 20171
+Business Unit:  Telular
+Posting Date:  Jun 4, 2026
+Job Description: 
+ 
+
+We are seeking an early‑career Machine Learning Engineer who is excited to grow rapidly by building and deploying production‑grade ML systems. The ideal candidate has a strong engineering mindset, has contributed to shipping ML features or products end‑to‑end, and is eager to take ownership across the full lifecycle—from data pipelines to model design to deployment, monitoring, and iteration in real‑world environments.
+
+ 
+
+This role offers hands‑on exposure to applied ML, working with IoT datasets, user needs, and product requirements to build scalable solutions that deliver measurable customer ROI.
+
+ 
+
+Responsibilities:
+
+Design, build, and deploy ML models into production environments, ensuring reliability, scalability, and performance.
+Ability to select and apply the appropriate ML approach for a given problem — including supervised learning (e.g., logistic regression, random forest, gradient boosting), unsupervised learning (e.g., clustering, dimensionality reduction), and deep learning techniques when appropriate.
+Develop and maintain feature engineering pipelines, data preprocessing flows, and training workflows.
+Collaborate with cross‑functional partners including product, data engineering, DevOps & QA to deliver end‑to‑end ML solutions.
+Work with DevOps team to implement robust MLOps practices, including versioning, CI/CD for ML, monitoring/alerting, automated retraining, and model governance.
+Continuously evaluate and improve models by monitoring performance, identifying and addressing bias, detecting data or concept drift, and iterating on features, algorithms, or training processes to maintain reliability over time.
+Ensure solutions meet security, compliance, and data privacy standards.
+Document system architectures, modeling decisions, and operational procedures.
+Work in a high performing scrum team to deliver quality code for stakeholders.
+ 
+
+Qualifications - Must Have Skills:
+
+3+ years of professional experience as an ML Engineer, Applied Scientist, or Data Scientist with an emphasis on hands‑on software engineering responsibilities, particularly around productionizing models.
+Demonstrated contributions to shipping ML models into production—not just prototypes—and supporting their maintenance over time.
+Proficiency in Python and ML frameworks such as PyTorch and Scikit‑learn.
+Prior hands-on experience with cloud platforms (AWS, Azure, GCP) and ML services (e.g., SageMaker, Vertex AI, Azure ML).
+Familiarity with GenAI system components and architecture, including vector databases, LLM fine‑tuning, embeddings pipelines, and retrieval‑augmented systems (RAG).
+Experience with MLOps tooling: Docker, Kubernetes, MLflow, Feature Stores, CI/CD pipelines is preferred.
+Strong understanding of data structures, algorithms, software engineering fundamentals, and distributed systems concepts.
+Bachelor’s degree in Computer Science, Machine Learning, Artificial Intelligence, Data Science, Engineering, Mathematics, or a closely related quantitative field.
+This is a hybrid role in Herndon, VA and no relocation assistance is able to be provided.
+ 
+
+Other Beneficial Skills:
+
+Familiarity with emerging Agentic AI concepts.
+Familiarity with Edge ML patterns.
+Experience working with large-scale data pipelines using Spark, Flink, Beam, or similar frameworks.
+Experience or demonstrated interest in Vision ML, with familiarity in common vision models and techniques for image classification, object detection, and segmentation.
+Knowledge of observability and monitoring tools for ML systems (Prometheus, Grafana, etc.)
+Experience with cloud infrastructure and managing resources in the cloud.
+Master’s degree in a relevant field may be considered equivalent to up to 2 years of professional ML engineering experience, particularly when supported by hands‑on coursework, research, internships, or real‑world projects involving applied machine learning.
+ 
+
+#LI-WA1
+
+#LI-HYBRID
+
+ 
+
+Compensation
+Employee Type:  Salaried
+Currency:  USD
+Salary Minimum:  130,000
+Salary Maximum:  155,000
+Incentive:  No
