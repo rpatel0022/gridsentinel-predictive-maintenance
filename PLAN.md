@@ -70,20 +70,20 @@ Hard rule for this project: **every byte of training signal is real, and the str
 
 > Read as the Telular ML Engineer hiring manager: I screen for *engineers who have operated ML in production and can show measurable ROI*, not Kaggle/notebook talent. Here is my honest read of the base plan and exactly what would make me say "we have to hire this person."
 
-**Scorecard of the base plan (as written above):**
+**Scorecard — base plan vs. the upgraded plan.** The middle column is my honest grade of the *original* plan; the right column is the grade once the upgrades below are executed, with the **concrete bar that earns the A**. Every category is designed to reach A — there are no remaining B/C categories once the project is built as specified.
 
-| What I screen for | Base-plan grade | Why |
-|---|---|---|
-| Domain/role fit | **A** | UPS + IoT fleet is uncannily on-target; clear they researched us |
-| Breadth of ML (sup/unsup/DL) | **A−** | All three present and justified |
-| MLOps lifecycle | **B+** | Tracking → registry → CI/CD → monitor → retrain is there; depth unproven |
-| "Shipped to prod, not a prototype" | **B−** | Deployed + Dockerized, but no SLOs, tests, or rollback — reads as *could* be a demo |
-| **Measurable customer ROI** | **C** | Posting says this twice. Base plan optimizes RMSE/F1, not dollars |
-| Software-engineering rigor (tests) | **C** | No test strategy. For an *engineer* hire this is the #1 silent rejection |
-| Security / compliance / privacy | **C** | Posting lists it explicitly; base plan is silent |
-| Senior judgment (tradeoffs, honesty) | **B** | Good instincts; needs visible "here's what I'd do differently" |
+| What I screen for | Base | **Upgraded** | The bar that earns the A |
+|---|---|---|---|
+| Domain / role fit | A | **A+** | Real power/IoT failure data + **live grid feeds** + dual-business-unit story (IntelliPower *and* Telular) |
+| Breadth of ML (sup/unsup/DL) | A− | **A** | All three shipped *and justified*, each beating a stated baseline, with **calibrated** probabilities |
+| MLOps lifecycle | B+ | **A** | Registry + CI/CD + monitoring + drift→**retrain→canary→promote→rollback**, all demonstrated live |
+| "Shipped to prod, not a prototype" | B− | **A** | Published **p99 SLO + load test**, schema validation, rollback, canary — proven on a public URL |
+| **Measurable customer ROI** | C | **A** | Decision threshold tuned to a **$ cost function**; headline "~X% lower expected cost vs schedule-based" |
+| SWE rigor (tests) | C | **A** | Real test suite (unit + data-validation + model-behavioral) + a published **Google ML Test Score** |
+| Security / compliance / privacy | C | **A** | Secret management, **dependency + image scanning in CI**, PII note, **model-governance audit trail** |
+| Senior judgment (tradeoffs, honesty) | B | **A** | **ADRs** for key forks, **delayed-label** handling, and a candid "what I'd do differently" section |
 
-**The eight upgrades that close the gap to must-hire** (each is cheap relative to its signal, and each maps to a line I actually screen on):
+**Net:** an all-A scorecard is achievable — but A is *earned by the artifact*, not the document. The plan now specifies exactly what to build for each A; the grade lands when it's live, tested, and demonstrable. The eight upgrades below are the path to that, each cheap relative to its signal and each mapped to a line I actually screen on:
 
 1. **Optimize a business-cost metric, not an accuracy metric.** Define the asymmetric cost: a *missed* failure (false negative) = emergency truck-roll + downtime ≈ $$$; a *false alarm* (false positive) = wasted inspection ≈ $. Tune the decision threshold to **minimize expected cost**, and report a headline like *"cuts expected maintenance cost ~X% vs a fixed-schedule baseline at the same coverage."* This single move converts the project from "a model" to "ROI," which is the exact language of the posting. **Always compare against a dumb baseline** (fixed-interval maintenance / "replace on threshold") so the lift is legible.
 
