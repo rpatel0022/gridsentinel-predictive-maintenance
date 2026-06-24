@@ -11,10 +11,12 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 > [docs/phase1_baseline_results.md](docs/phase1_baseline_results.md)._
 
 ![CI](https://github.com/rpatel0022/ametek-ml-engineer-project/actions/workflows/ci.yml/badge.svg)
-**Status:** Phase 1 — data + baselines. Real MetroPT-3 validated, windowed feature
-pipeline, temporal CV with embargo, RF/XGBoost baselines tuned to the cost function
-and tracked in MLflow. Foundation (scaffold, green CI, cost model) from Phase 0.
-Modeling continues per [PLAN.md](PLAN.md).
+**Status:** Phase 2 — advanced models. On top of the Phase 1 supervised baseline
+(temporal CV, cost-tuned RF/XGBoost, MLflow), an **unsupervised Isolation-Forest
+anomaly detector** now flags the real failures at **ROC-AUC 0.95 / recall 0.89 with
+no failure labels**, and gives **19–48 h early warning** on 3 of 4 failures
+([results](docs/phase2_anomaly_results.md)). Modeling continues per
+[PLAN.md](PLAN.md).
 
 GridSentinel ingests streaming telemetry from a fleet of IoT-connected power
 units, predicts failures and remaining useful life, flags anomalies in real time,
@@ -76,17 +78,19 @@ ruff check . && ruff format --check .
 pytest
 ```
 
-## Run the Phase 1 baseline
+## Run the models
 
 ```bash
 pip install -e ".[dev,pipelines,modeling]"
 # Fetch real MetroPT-3 (UCI #791) — never committed; then:
 python -m pipelines.data_quality "MetroPT3(AirCompressor).csv"     # validate + profile
 python -m pipelines.train_baseline "MetroPT3(AirCompressor).csv"   # RF/XGBoost → MLflow
+python -m pipelines.anomaly "MetroPT3(AirCompressor).csv"          # Isolation Forest → MLflow
 ```
 
-Runs are tracked in MLflow (defaults to a local `sqlite:///mlflow.db`); see
-[docs/phase1_baseline_results.md](docs/phase1_baseline_results.md).
+Runs are tracked in MLflow (defaults to a local `sqlite:///mlflow.db`). Results:
+[Phase 1 baseline](docs/phase1_baseline_results.md) ·
+[Phase 2 anomaly detection](docs/phase2_anomaly_results.md).
 
 ## Key decisions
 

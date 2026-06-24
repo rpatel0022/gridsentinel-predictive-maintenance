@@ -6,9 +6,9 @@ left off. Start here, then read `PLAN.md`._
 ## One-line summary
 Building **GridSentinel** — a production-grade predictive-maintenance ML system —
 as a portfolio project to land the AMETEK Telular ML Engineer role. Foundation +
-validated real data + live EIA feed are in, and the **Phase 1 baseline** now
-produces a first real ROI number; next step is Phase 2 (calibration, sequence
-models, fleet data).
+validated real data + live EIA feed + **Phase 1 supervised baseline** + **Phase 2
+unsupervised anomaly detector** (with real early warning) are in; next is sequence
+models / fleet data, then productionizing.
 
 ## Decisions locked (see `docs/adr/0001-dataset-feed-and-cloud.md`)
 - **Dataset:** MetroPT-3 (primary) + Backblaze (fleet-scale companion, Phase 2)
@@ -51,13 +51,24 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   the best fixed schedule on the held-out June failure (ROC-AUC 0.92; ~30% mean over
   2 scorable folds). Full results + honest caveats: `docs/phase1_baseline_results.md`.
 
+## Phase 2 in progress 🔵 (this session)
+- **Unsupervised anomaly detection** (`pipelines/anomaly.py`): Isolation Forest fit
+  on the failure-free baseline period (zero failure labels), evaluated vs the 4 real
+  failures. **ROC-AUC 0.95, recall 0.89** at a label-free threshold, and **19–48 h
+  early warning** on 3 of 4 failures — the lead time supervised prediction couldn't
+  find. Results: `docs/phase2_anomaly_results.md`.
+- **Calibration was tested and rejected:** isotonic/sigmoid calibration +
+  validation-slice thresholding all *worsened* ROI (precision collapse); the real
+  bottleneck is the 4-failure scarcity, not calibration. (See the results doc.)
+
 ## Next steps (in order)
-1. **[Phase 2]** Probability **calibration** (the train-tuned threshold doesn't
-   transfer for RF / on the small July failure — see results doc); reliability curve.
-2. **[Phase 2]** **Sequence models** (LSTM / Temporal-CNN) over the raw stream +
-   unsupervised **anomaly detection** scored against the same real failures.
-3. **[Phase 2]** Layer in **Backblaze** Drive Stats — fleet scale + many failures
-   (fixes the "only 2 scorable folds" limitation), register best model in MLflow.
+1. **[Phase 2]** **Sequence models** (LSTM / Temporal-CNN) over the raw stream to
+   capture temporal shape the per-window aggregates discard.
+2. **[Phase 2]** Layer in **Backblaze** Drive Stats — fleet scale + many failures
+   (fixes the "only 2 scorable folds" / label-scarcity limitation); register best
+   model in MLflow.
+3. **[Phase 3]** Productionize: FastAPI serving + schema validation, Docker, CI/CD
+   metric gate, registry stages + rollback.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
