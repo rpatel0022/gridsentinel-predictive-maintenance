@@ -4,13 +4,17 @@
 maintenance cost ~X% vs schedule-based upkeep** — runs in production with full
 MLOps, detects its own drift, retrains automatically, and ships to the edge.
 
-> _`~X%` is the headline ROI number; it lands once Phase 1 produces the
-> cost-tuned model vs the fixed-schedule baseline._
+> _`~X%` is the full-system target. **Phase 1 baseline (first real number):** on a
+> held-out failure under strict temporal CV, the cost-tuned XGBoost leak detector
+> cuts expected maintenance cost **~60% vs the best fixed schedule** (ROC-AUC 0.92,
+> ~30% averaged over the scorable folds). Details + the honest caveats:
+> [docs/phase1_baseline_results.md](docs/phase1_baseline_results.md)._
 
 ![CI](https://github.com/rpatel0022/ametek-ml-engineer-project/actions/workflows/ci.yml/badge.svg)
-**Status:** Phase 0 — foundation. Repo scaffold, green CI over a real test suite,
-and the asymmetric cost model are in; modeling phases follow per
-[PLAN.md](PLAN.md).
+**Status:** Phase 1 — data + baselines. Real MetroPT-3 validated, windowed feature
+pipeline, temporal CV with embargo, RF/XGBoost baselines tuned to the cost function
+and tracked in MLflow. Foundation (scaffold, green CI, cost model) from Phase 0.
+Modeling continues per [PLAN.md](PLAN.md).
 
 GridSentinel ingests streaming telemetry from a fleet of IoT-connected power
 units, predicts failures and remaining useful life, flags anomalies in real time,
@@ -71,6 +75,18 @@ pip install -e ".[dev]"
 ruff check . && ruff format --check .
 pytest
 ```
+
+## Run the Phase 1 baseline
+
+```bash
+pip install -e ".[dev,pipelines,modeling]"
+# Fetch real MetroPT-3 (UCI #791) — never committed; then:
+python -m pipelines.data_quality "MetroPT3(AirCompressor).csv"     # validate + profile
+python -m pipelines.train_baseline "MetroPT3(AirCompressor).csv"   # RF/XGBoost → MLflow
+```
+
+Runs are tracked in MLflow (defaults to a local `sqlite:///mlflow.db`); see
+[docs/phase1_baseline_results.md](docs/phase1_baseline_results.md).
 
 ## Key decisions
 

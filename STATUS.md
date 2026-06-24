@@ -5,9 +5,10 @@ left off. Start here, then read `PLAN.md`._
 
 ## One-line summary
 Building **GridSentinel** — a production-grade predictive-maintenance ML system —
-as a portfolio project to land the AMETEK Telular ML Engineer role. Foundation is
-built and tested, the real MetroPT-3 data is validated, and the live EIA feed is
-verified; next step is Phase 1 baselines.
+as a portfolio project to land the AMETEK Telular ML Engineer role. Foundation +
+validated real data + live EIA feed are in, and the **Phase 1 baseline** now
+produces a first real ROI number; next step is Phase 2 (calibration, sequence
+models, fleet data).
 
 ## Decisions locked (see `docs/adr/0001-dataset-feed-and-cloud.md`)
 - **Dataset:** MetroPT-3 (primary) + Backblaze (fleet-scale companion, Phase 2)
@@ -41,11 +42,22 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
    bounds (see `docs/data_quality_metropt3.md`).
 3. Smoke-tested `EIAConnector.fetch_demand()` live — 24 hourly rows returned.
 
+## Phase 1 done ✅ (this session)
+- Windowed feature pipeline (`pipelines/features.py`), real failure labels from the
+  report table (`pipelines/labels.py`), temporal CV with embargo (`gridsentinel/cv.py`).
+- RF + XGBoost baselines, cost-tuned threshold (train-tuned, frozen for test),
+  MLflow tracking (`pipelines/train_baseline.py`).
+- **First real ROI:** cost-tuned XGBoost leak detector cuts expected cost ~60% vs
+  the best fixed schedule on the held-out June failure (ROC-AUC 0.92; ~30% mean over
+  2 scorable folds). Full results + honest caveats: `docs/phase1_baseline_results.md`.
+
 ## Next steps (in order)
-1. **[offline OK]** Phase 1 modeling: temporal/grouped CV splitter, RF/XGBoost
-   baselines, MLflow tracking, cost-tuned threshold vs the schedule baseline →
-   produces the first real **ROI %** to replace `~X%` in the README.
-2. **[Phase 2]** Layer in Backblaze Drive Stats as the fleet-scale companion track.
+1. **[Phase 2]** Probability **calibration** (the train-tuned threshold doesn't
+   transfer for RF / on the small July failure — see results doc); reliability curve.
+2. **[Phase 2]** **Sequence models** (LSTM / Temporal-CNN) over the raw stream +
+   unsupervised **anomaly detection** scored against the same real failures.
+3. **[Phase 2]** Layer in **Backblaze** Drive Stats — fleet scale + many failures
+   (fixes the "only 2 scorable folds" limitation), register best model in MLflow.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
