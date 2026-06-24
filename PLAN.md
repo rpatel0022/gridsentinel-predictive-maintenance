@@ -47,6 +47,8 @@ If a single line in the project README maps each bullet above to a commit/dashbo
 
 Hard rule for this project: **every byte of training signal is real, and the streaming/production layer pulls real, continuously-updating public data.** Nothing is fabricated. The "simulator" is not a generator of fake numbers — it is a **real-time ingestion service** that hits live public APIs on a schedule, exactly like a production connector would. This is the single biggest credibility upgrade and directly answers "make it a real production project."
 
+**One honest design decision, stated up front (so it survives interrogation):** the two data tiers do *different jobs* and are deliberately not the same source pretending to be one. **Tier 1 (failure-labeled datasets) trains and evaluates the predictive-maintenance models** — that's where the ground-truth failure events live. **Tier 2 (live public feeds) drives the production/MLOps layer** — ingestion, serving, and especially monitoring/drift/retraining — because that's where *new data genuinely keeps arriving* and where non-stationarity is real rather than injected. The live feeds carry no failure labels, so the production model runs against them as a continuously-monitored stream with **absent/delayed ground truth**, and true performance is backfilled when (and if) labels become available. That separation is the realistic shape of operating ML in the field, and naming it explicitly is the senior move — the alternative (implying one magic feed both trains and serves a labeled model live) is exactly the seam a sharp reviewer pulls on.
+
 **Tier 1 — Real labeled-failure data (for training the predictive-maintenance models):**
 - **MetroPT-3** *(primary — UCI / Zenodo)*: real Air Production Unit (compressor) sensor signals from Porto metro trains — pressure, temperature, motor current, valve states — with **real failure events taken from the company's maintenance reports**. It is an actual industrial IoT predictive-maintenance dataset captured as a continuous data flow, and the compressor/power-equipment domain is close to IntelliPower's world. Best primary choice.
 - **Backblaze Drive Stats** *(fleet-scale + ongoing)*: ~344k real drives, real failures, daily SMART telemetry, severe natural class imbalance — and **a brand-new batch is published every quarter**, so the dataset itself is "new incoming data." The strongest "I worked with IoT-scale fleet failure data" claim.
@@ -66,30 +68,28 @@ Hard rule for this project: **every byte of training signal is real, and the str
 
 ---
 
-## Hiring-Manager Review — grading the plan, and the upgrades to "Must-Hire"
+## What a Telular hiring manager screens for — and the artifact that proves it
 
-> Read as the Telular ML Engineer hiring manager: I screen for *engineers who have operated ML in production and can show measurable ROI*, not Kaggle/notebook talent. Here is my honest read of the base plan and exactly what would make me say "we have to hire this person."
+> Framing: a Telular ML Engineer screen filters for *engineers who have operated ML in production and can show measurable ROI*, not Kaggle/notebook talent. The point of this section isn't to grade ourselves — it's to make sure every screen the role applies has a **concrete, demonstrable artifact** answering it. A grade is something the reviewer assigns after seeing the live system; our job is to leave them no gap to dock for.
 
-**Scorecard — base plan vs. the upgraded plan.** The middle column is my honest grade of the *original* plan; the right column is the grade once the upgrades below are executed, with the **concrete bar that earns the A**. Every category is designed to reach A — there are no remaining B/C categories once the project is built as specified.
+| What the screen looks for | How GridSentinel demonstrates it | The proof artifact a reviewer can open |
+|---|---|---|
+| Domain / role fit | Real power/IoT failure data + live grid feeds + a story that lands in both AMETEK units | The dataset/feed list in the README + a UPS/grid-framed problem statement |
+| Breadth of ML (sup / unsup / DL) | All three shipped *and justified*, each beating a stated baseline, probabilities calibrated | MLflow runs + a results table with baseline deltas + a reliability curve |
+| MLOps lifecycle | Registry + CI/CD + monitoring + drift → retrain → canary → promote → rollback | A live Grafana dashboard + a CI run + a recorded retrain/promote/rollback cycle |
+| Shipped to prod, not a prototype | p99 SLO, load test, schema validation, rollback, canary on a real URL | The public endpoint + a load-test artifact + the CI/CD pipeline |
+| Measurable customer ROI | Decision threshold tuned to a **$ cost function** vs a fixed-schedule baseline | The headline "~X% lower expected cost" with the reproducible baseline comparison |
+| SWE rigor (tests) | Unit + data-validation + model-behavioral tests, scored against a public rubric | Green CI badge over the test suite + a published Google ML Test Score |
+| Security / compliance / privacy | Secret management, dependency + image scanning in CI, PII note, governance trail | The CI scan step + the model-governance/audit trail in MLflow stages |
+| Senior judgment (tradeoffs, honesty) | ADRs for the real forks, delayed-label handling, a candid retrospective | `docs/adr/*` + the model card + a "what I'd do differently" section |
 
-| What I screen for | Base | **Upgraded** | The bar that earns the A |
-|---|---|---|---|
-| Domain / role fit | A | **A+** | Real power/IoT failure data + **live grid feeds** + dual-business-unit story (IntelliPower *and* Telular) |
-| Breadth of ML (sup/unsup/DL) | A− | **A** | All three shipped *and justified*, each beating a stated baseline, with **calibrated** probabilities |
-| MLOps lifecycle | B+ | **A** | Registry + CI/CD + monitoring + drift→**retrain→canary→promote→rollback**, all demonstrated live |
-| "Shipped to prod, not a prototype" | B− | **A** | Published **p99 SLO + load test**, schema validation, rollback, canary — proven on a public URL |
-| **Measurable customer ROI** | C | **A** | Decision threshold tuned to a **$ cost function**; headline "~X% lower expected cost vs schedule-based" |
-| SWE rigor (tests) | C | **A** | Real test suite (unit + data-validation + model-behavioral) + a published **Google ML Test Score** |
-| Security / compliance / privacy | C | **A** | Secret management, **dependency + image scanning in CI**, PII note, **model-governance audit trail** |
-| Senior judgment (tradeoffs, honesty) | B | **A** | **ADRs** for key forks, **delayed-label** handling, and a candid "what I'd do differently" section |
-
-**Net:** an all-A scorecard is achievable — but A is *earned by the artifact*, not the document. The plan now specifies exactly what to build for each A; the grade lands when it's live, tested, and demonstrable. The eight upgrades below are the path to that, each cheap relative to its signal and each mapped to a line I actually screen on:
+The right column is the whole game: **the artifact makes the claim, the document doesn't.** The eight build choices below are how each of those artifacts comes to exist — each cheap relative to the signal it sends, each mapped to a line the role actually screens on:
 
 1. **Optimize a business-cost metric, not an accuracy metric.** Define the asymmetric cost: a *missed* failure (false negative) = emergency truck-roll + downtime ≈ $$$; a *false alarm* (false positive) = wasted inspection ≈ $. Tune the decision threshold to **minimize expected cost**, and report a headline like *"cuts expected maintenance cost ~X% vs a fixed-schedule baseline at the same coverage."* This single move converts the project from "a model" to "ROI," which is the exact language of the posting. **Always compare against a dumb baseline** (fixed-interval maintenance / "replace on threshold") so the lift is legible.
 
 2. **A real test suite + an ML Test Score.** Most candidates have zero ML tests; this is the cleanest differentiator. Add: unit tests (pipeline transforms), **data-validation tests** (pandera/Great Expectations — schema, ranges, nulls), and **model behavioral tests** (invariance, directional-expectation, minimum-functionality à la CheckList). Self-grade against **Google's "ML Test Score"** rubric (data/model/infra/monitoring) and publish the score in the README. Green CI badge over a real test suite reads as "this person writes production code."
 
-3. **Correctness rigor that survives interrogation.** State explicitly: **temporal/grouped cross-validation** (no future leakage, no same-device rows in train+test), **probability calibration** (reliability curve), and class-imbalance handling beyond `class_weight`. In the interview I *will* ask "how do you know you didn't leak?" — the plan should already answer it.
+3. **Correctness rigor that survives interrogation.** State explicitly: **temporal/grouped cross-validation** (no future leakage, no same-device rows in train+test), **probability calibration** (reliability curve), and class-imbalance handling beyond `class_weight`. A production-ML interview *will* include "how do you know you didn't leak?" — the plan should already answer it.
 
 4. **Production SLOs + safe deployment.** Don't just deploy — operate it: publish a **p99 latency target** and a load-test result, **pydantic request/response schema validation**, **model rollback** via the registry, and a **shadow / canary** path for new model versions. This is the difference between "deployed" and "ran in production."
 
@@ -101,13 +101,15 @@ Hard rule for this project: **every byte of training signal is real, and the str
 
 8. **Document like an engineer on a scrum team.** **ADRs** (architecture decision records) for the 3–4 real forks (model choice, serving stack, cloud target), a **model card**, and a **"what I'd do with more time / what I got wrong"** section. The honesty section is counter-intuitively the strongest senior signal — it says you've shipped enough to have scars.
 
-**The undeniable headline** (put it at the top of the README and say it out loud in the referral conversation): *"A self-healing, IoT-scale predictive-maintenance service that cuts expected maintenance cost ~X% vs schedule-based upkeep, runs in production with full MLOps, detects its own drift, retrains automatically, and ships to the edge."* If that sentence is **demonstrably true on a live URL with a dashboard behind it**, the "3+ years in production" bar is functionally met by proof instead of tenure.
+**The undeniable headline** (put it at the top of the README and say it out loud in the referral conversation): *"A self-healing, IoT-scale predictive-maintenance service that cuts expected maintenance cost ~X% vs schedule-based upkeep, runs in production with full MLOps, detects its own drift, retrains automatically, and ships to the edge."* When that sentence is **demonstrably true on a live URL with a dashboard behind it**, the artifact — not the résumé — is what answers the "3+ years in production" bar.
 
 ---
 
 ## Phased build (~12 weeks, part-time)
 
 Sequenced so the early phases land in Rushi's comfort zone (build momentum) and the middle phases — the MLOps layer — are where the real growth and differentiation happen.
+
+**Why this much scope is realistic on a part-time timeline.** The full MLOps surface here would be a 6–12-month solo build the old way. The lever that compresses it is **AI-assisted parallel development**: Claude Code subagents fan out concurrently across the independent workstreams — feature pipeline, serving, monitoring, infra, tests, and docs — while Rushi owns the architecture, the judgment calls (ADRs), and the verification of every result. The ambition stays intact because the throughput is real. And it's on-thesis: fluent, agentic-AI-augmented engineering is exactly the modern skill both AMETEK units are hiring for — the internship is literally an *AI Integration* role, and the Telular posting names Agentic AI as a beneficial skill. Building this way is itself part of the story, not a shortcut hidden from it.
 
 - **Phase 0 — Foundation (Wk 1):** Problem framing, **the business-cost function (FN vs FP $)** and the **dumb baseline** to beat, acquire the **real** failure dataset (MetroPT-3 / Backblaze), stand up the **live-ingestion service skeleton** (real connectors to EIA / Sensor.Community / GridStatus), repo scaffold (`src/`, `pipelines/`, `serving/`, `monitoring/`, `infra/`, `tests/`, `docs/adr/`), architecture diagram, **CI green from day one** (lint + a trivial test). *[Upgrade 1, 8]*
 - **Phase 1 — Data + baselines (Wk 2–3):** Feature pipeline with **data-validation tests** (pandera/Great Expectations), EDA, supervised baselines (RF / XGBoost), **temporal/grouped CV to prove no leakage**, **threshold tuned to the cost function** vs the baseline — all tracked in **MLflow**. *[comfort zone — ship fast; Upgrades 1–3]*
