@@ -43,12 +43,26 @@ A production-grade system that ingests streaming telemetry from a simulated **fl
 
 If a single line in the project README maps each bullet above to a commit/dashboard, the resume screen is basically pre-passed.
 
-### Data strategy (no real AMETEK data needed — but real failure signal)
+### Data strategy — 100% real data, plus a genuinely live feed (NO synthetic/toy data anywhere)
 
-A skeptical hiring manager's first reflex is "simulated data = toy." Defuse it: the **core failure signal must be real**, and what's simulated must be *clearly labeled* and limited to the transport/streaming layer.
-- **Primary recommendation — Backblaze drive-failure SMART logs:** millions of real devices, real failures, real telemetry, severe natural class imbalance. It *is* a real fleet — the most defensible "I worked with IoT-scale failure data" claim. (NASA Li-ion Battery is the more UPS-thematic alternate and gives clean RUL labels; NASA C-MAPSS is the RUL benchmark; pick in Phase 0.)
-- **Fleet simulator (clearly scoped):** wraps the *real* records and replays them as N devices streaming over time, so there is a live stream to serve, monitor, and retrain on. Drift is induced by **shifting which real sub-population streams when** (e.g., a new drive model / operating regime appears) — not by injecting synthetic noise you then "detect." Be explicit in the README about what is real (the signal and labels) vs simulated (the arrival/transport), because honesty about this is itself a senior signal.
-- **Delayed-label reality:** in real predictive maintenance, ground truth (did it actually fail?) arrives *weeks later*. Model the lag explicitly — it makes the monitoring/retraining story credible instead of magical (most portfolios ignore this).
+Hard rule for this project: **every byte of training signal is real, and the streaming/production layer pulls real, continuously-updating public data.** Nothing is fabricated. The "simulator" is not a generator of fake numbers — it is a **real-time ingestion service** that hits live public APIs on a schedule, exactly like a production connector would. This is the single biggest credibility upgrade and directly answers "make it a real production project."
+
+**Tier 1 — Real labeled-failure data (for training the predictive-maintenance models):**
+- **MetroPT-3** *(primary — UCI / Zenodo)*: real Air Production Unit (compressor) sensor signals from Porto metro trains — pressure, temperature, motor current, valve states — with **real failure events taken from the company's maintenance reports**. It is an actual industrial IoT predictive-maintenance dataset captured as a continuous data flow, and the compressor/power-equipment domain is close to IntelliPower's world. Best primary choice.
+- **Backblaze Drive Stats** *(fleet-scale + ongoing)*: ~344k real drives, real failures, daily SMART telemetry, severe natural class imbalance — and **a brand-new batch is published every quarter**, so the dataset itself is "new incoming data." The strongest "I worked with IoT-scale fleet failure data" claim.
+- **NASA Li-ion Battery Aging** + **NASA Bearing** run-to-failure *(PCoE repository)*: real run-to-failure experiments; the battery set is the most UPS-thematic and yields clean RUL labels.
+- (Pick the primary in Phase 0 after a data-quality look; MetroPT-3 recommended, Backblaze as the fleet-scale companion.)
+
+**Tier 2 — Genuinely live, continuously-updating feeds (the real "new coming data" the production system serves/monitors/retrains on):**
+- **EIA Open Data API v2** — near-real-time hourly US electricity demand / net generation / interchange per balancing authority, refreshed ~1 hour after each hour. Free with an API key. **Power domain — perfect for IntelliPower/Telular.**
+- **GridStatus** (`gridstatus` open-source Python lib + gridstatus.io hosted API) — real-time ISO load / fuel-mix / prices (CAISO, ERCOT, PJM, …). Free tier is rate-limited, so cache locally.
+- **Sensor.Community** — 12,000+ **physical** DIY sensors across 82 countries (PM2.5/PM10, temp, humidity, pressure) via a free public JSON API, updating ~every 10 minutes. Authentic live device telemetry — real hardware, real drift, real gaps/outages.
+- **Transport realism (optional, high-signal for Telular):** republish the ingested live readings over **MQTT** (public HiveMQ/EMQX broker or a self-hosted Mosquitto) so the pipeline consumes data exactly the way Telular's cellular IoT devices actually emit it.
+
+**How this makes the production story real (not staged):**
+- **Drift is naturally occurring**, not injected — grid demand shifts with weather/season/time-of-day; live sensors degrade, drop offline, and come back. The drift monitor catches *real* non-stationarity, which is far more convincing than detecting noise you added yourself.
+- **Delayed ground truth is modeled honestly** — in real predictive maintenance the "did it fail?" label arrives weeks later. The pipeline alerts on leading indicators now and **backfills true performance when labels land**. Most portfolios skip this; it reads as someone who has actually operated a model.
+- **Continuous arrival enables a real retraining cadence** — because new data genuinely keeps coming (live feeds hourly, Backblaze quarterly), automated retraining has something authentic to retrain on.
 
 ---
 
@@ -95,7 +109,7 @@ A skeptical hiring manager's first reflex is "simulated data = toy." Defuse it: 
 
 Sequenced so the early phases land in Rushi's comfort zone (build momentum) and the middle phases — the MLOps layer — are where the real growth and differentiation happen.
 
-- **Phase 0 — Foundation (Wk 1):** Problem framing, **the business-cost function (FN vs FP $)** and the **dumb baseline** to beat, dataset acquisition, repo scaffold (`src/`, `pipelines/`, `serving/`, `monitoring/`, `infra/`, `tests/`, `docs/adr/`), architecture diagram, fleet-simulator skeleton, **CI green from day one** (lint + a trivial test). *[Upgrade 1, 8]*
+- **Phase 0 — Foundation (Wk 1):** Problem framing, **the business-cost function (FN vs FP $)** and the **dumb baseline** to beat, acquire the **real** failure dataset (MetroPT-3 / Backblaze), stand up the **live-ingestion service skeleton** (real connectors to EIA / Sensor.Community / GridStatus), repo scaffold (`src/`, `pipelines/`, `serving/`, `monitoring/`, `infra/`, `tests/`, `docs/adr/`), architecture diagram, **CI green from day one** (lint + a trivial test). *[Upgrade 1, 8]*
 - **Phase 1 — Data + baselines (Wk 2–3):** Feature pipeline with **data-validation tests** (pandera/Great Expectations), EDA, supervised baselines (RF / XGBoost), **temporal/grouped CV to prove no leakage**, **threshold tuned to the cost function** vs the baseline — all tracked in **MLflow**. *[comfort zone — ship fast; Upgrades 1–3]*
 - **Phase 2 — Advanced models (Wk 4–5):** LSTM/Temporal-CNN sequence model; unsupervised anomaly detection + health clustering; **probability calibration**; stand up **Feast** feature store; register best model in MLflow registry. *[Upgrade 3]*
 - **Phase 3 — Productionize (Wk 6–8):** **FastAPI** serving with **pydantic schema validation**, Dockerize, docker-compose stack, **GitHub Actions** CI/CD (lint → unit + data + **model-behavioral tests** → train → evaluate → metric-gate → **dependency/image scan** → build), registry **stages + rollback**, secrets via env/secret-manager, **ML Test Score** published. *[growth zone — the core; Upgrades 2, 4, 6]*
@@ -128,16 +142,17 @@ Sequenced so the early phases land in Rushi's comfort zone (build momentum) and 
 
 This is a portfolio system, so "tests" = concrete demoable artifacts per phase, each tied to a hiring-manager screen:
 - **Phase 1:** MLflow shows tracked runs; the cost-tuned model beats the **schedule-based baseline** on **expected $ cost**; data-validation tests pass; CV is grouped/temporal (leakage check documented).
-- **Phase 2:** LSTM RUL error vs GBM baseline reported; anomaly detector precision/recall measured; calibration curve published.
+- **Phase 2:** LSTM RUL error vs GBM baseline reported; anomaly detector precision/recall measured **against the real failure events** in MetroPT-3/Backblaze (not injected faults); calibration curve published.
 - **Phase 3:** `docker-compose up` brings the stack live; `curl` returns a schema-validated prediction; a green CI run shows the metric gate **and** the dependency/image scan blocking bad inputs; **ML Test Score** rendered.
-- **Phase 4:** Grafana shows system + model metrics; shifting the streaming sub-population trips the drift monitor and kicks off **retrain → canary → promote**, with **rollback** demonstrated; delayed labels backfill true performance.
+- **Phase 4:** Grafana shows system + model metrics; **naturally-occurring drift in the live feed** (weather/season demand shift, sensor outages/recoveries) trips the drift monitor and kicks off **retrain → canary → promote**, with **rollback** demonstrated; delayed labels backfill true performance.
 - **Phase 5:** Public AWS URL serves under the stated **p99 SLO** (load-test artifact); quantized model runs on the constrained edge target with **measured size/latency reduction**; the video walks the full loop end-to-end.
 
 ---
 
 ## Open / to-confirm before/while building
 
-- Final dataset choice (NASA Battery vs C-MAPSS vs Backblaze) — pick in Phase 0 after a quick data-quality look.
+- Final **real** failure-dataset choice (MetroPT-3 recommended primary vs Backblaze for fleet-scale vs NASA Battery for UPS theme) — pick in Phase 0 after a quick data-quality look. **No synthetic datasets (e.g., AI4I) — dropped per the real-data mandate.**
+- Which **live feed(s)** to wire first — EIA grid demand (power-domain, recommended) and/or Sensor.Community (physical IoT devices); both are free. Decide whether to add the MQTT transport layer in Phase 0 or defer to Phase 4.
 - Cloud provider — AWS recommended (most job postings, incl. SageMaker, name it), but Azure is viable since AMETEK is a Microsoft-365 shop; confirm early since it shapes Phase 5.
 - Whether to attempt the optional GenAI Phase 6 given the part-time timeline.
 
