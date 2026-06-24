@@ -53,7 +53,7 @@ Hard rule for this project: **every byte of training signal is real, and the str
 - **MetroPT-3** *(primary — UCI / Zenodo)*: real Air Production Unit (compressor) sensor signals from Porto metro trains — pressure, temperature, motor current, valve states — with **real failure events taken from the company's maintenance reports**. It is an actual industrial IoT predictive-maintenance dataset captured as a continuous data flow, and the compressor/power-equipment domain is close to IntelliPower's world. Best primary choice.
 - **Backblaze Drive Stats** *(fleet-scale + ongoing)*: ~344k real drives, real failures, daily SMART telemetry, severe natural class imbalance — and **a brand-new batch is published every quarter**, so the dataset itself is "new incoming data." The strongest "I worked with IoT-scale fleet failure data" claim.
 - **NASA Li-ion Battery Aging** + **NASA Bearing** run-to-failure *(PCoE repository)*: real run-to-failure experiments; the battery set is the most UPS-thematic and yields clean RUL labels.
-- (Pick the primary in Phase 0 after a data-quality look; MetroPT-3 recommended, Backblaze as the fleet-scale companion.)
+- **Locked:** MetroPT-3 is the **primary** (drives Phases 1–4); Backblaze enters at Phase 2 as the **fleet-scale companion** (separate model track — strengthens the "heterogeneous IoT fleet" claim and supplies a genuine quarterly retraining cadence). NASA Battery kept as an optional UPS-themed RUL showcase if time allows. Confirm MetroPT-3 quality in Phase 0 before building on it.
 
 **Tier 2 — Genuinely live, continuously-updating feeds (the real "new coming data" the production system serves/monitors/retrains on):**
 - **EIA Open Data API v2** — near-real-time hourly US electricity demand / net generation / interchange per balancing authority, refreshed ~1 hour after each hour. Free with an API key. **Power domain — perfect for IntelliPower/Telular.**
@@ -151,11 +151,16 @@ This is a portfolio system, so "tests" = concrete demoable artifacts per phase, 
 
 ---
 
-## Open / to-confirm before/while building
+## Locked decisions
 
-- Final **real** failure-dataset choice (MetroPT-3 recommended primary vs Backblaze for fleet-scale vs NASA Battery for UPS theme) — pick in Phase 0 after a quick data-quality look. **No synthetic datasets (e.g., AI4I) — dropped per the real-data mandate.**
-- Which **live feed(s)** to wire first — EIA grid demand (power-domain, recommended) and/or Sensor.Community (physical IoT devices); both are free. Decide whether to add the MQTT transport layer in Phase 0 or defer to Phase 4.
-- Cloud provider — AWS recommended (most job postings, incl. SageMaker, name it), but Azure is viable since AMETEK is a Microsoft-365 shop; confirm early since it shapes Phase 5.
-- Whether to attempt the optional GenAI Phase 6 given the part-time timeline.
+- **Primary dataset:** **MetroPT-3** (Phases 1–4), with **Backblaze** as the fleet-scale companion from Phase 2; NASA Battery optional. **No synthetic datasets (e.g., AI4I) — dropped per the real-data mandate.** Validate MetroPT-3 quality in Phase 0 before committing build effort.
+- **Primary live feed:** **EIA Open Data API v2** (hourly US electricity demand — power-domain, free key). Drives the production/monitoring/retraining layer.
+- **Cloud:** **AWS** (ECS/Fargate + S3; SageMaker as stretch) — broadest posting match and free tier covers the demo.
+
+## Still open (decide while building)
+
+- Whether to wire **Sensor.Community** as a second live feed (physical-device drift) — defer to Phase 4 unless Phase 0 has slack.
+- Whether to add the **MQTT** transport layer in Phase 0 or defer to Phase 4.
+- Whether to attempt the optional **GenAI Phase 6** given the part-time timeline.
 
 > Note: this is a strategy/portfolio plan, not a change to an existing codebase, so no code exploration was needed. On approval, the natural first step is **Phase 0**, and it's worth saving the AMETEK career context + this project to memory for continuity across sessions.
