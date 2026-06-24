@@ -11,11 +11,11 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 > [docs/phase1_baseline_results.md](docs/phase1_baseline_results.md)._
 
 ![CI](https://github.com/rpatel0022/ametek-ml-engineer-project/actions/workflows/ci.yml/badge.svg)
-**Status:** Phase 2 — advanced models. On top of the Phase 1 supervised baseline
-(temporal CV, cost-tuned RF/XGBoost, MLflow), an **unsupervised Isolation-Forest
-anomaly detector** now flags the real failures at **ROC-AUC 0.95 / recall 0.89 with
-no failure labels**, and gives **19–48 h early warning** on 3 of 4 failures
-([results](docs/phase2_anomaly_results.md)). Modeling continues per
+**Status:** Phase 3 — productionizing. The Phase 2 anomaly detector (ROC-AUC 0.95,
+recall 0.89, 19–48 h early warning, [results](docs/phase2_anomaly_results.md)) is
+now served behind a **schema-validated FastAPI app** (`serving/`), packaged in a
+**Docker** image, with the same physical contract guarding the request body that
+guards the training data. Next: a CI metric gate + registry rollback. Continues per
 [PLAN.md](PLAN.md).
 
 GridSentinel ingests streaming telemetry from a fleet of IoT-connected power
@@ -59,9 +59,9 @@ threshold, cost = optimal_threshold(y_true, y_score, model)     # ROI-optimal cu
 ## Repository layout
 
 ```
-src/gridsentinel/   Core library (Phase 0: the cost model)
-pipelines/          Feature engineering & training workflows (P1+)
-serving/            FastAPI inference service (P3+)
+src/gridsentinel/   Core library (cost model, temporal CV)
+pipelines/          Features, labels, training, anomaly detection (P1-2)
+serving/            FastAPI inference service + Docker (P3)
 monitoring/         Observability, drift, self-healing loop (P4+)
 infra/              AWS deploy, live-ingestion service, edge target (P5+)
 tests/              Unit / data-validation / model-behavioral tests

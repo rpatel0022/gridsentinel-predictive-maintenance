@@ -7,8 +7,8 @@ left off. Start here, then read `PLAN.md`._
 Building **GridSentinel** — a production-grade predictive-maintenance ML system —
 as a portfolio project to land the AMETEK Telular ML Engineer role. Foundation +
 validated real data + live EIA feed + **Phase 1 supervised baseline** + **Phase 2
-unsupervised anomaly detector** (with real early warning) are in; next is sequence
-models / fleet data, then productionizing.
+anomaly detector** + **Phase 3 FastAPI serving service (Dockerized)** are in; next
+is the CI metric gate + registry rollback, then observability.
 
 ## Decisions locked (see `docs/adr/0001-dataset-feed-and-cloud.md`)
 - **Dataset:** MetroPT-3 (primary) + Backblaze (fleet-scale companion, Phase 2)
@@ -61,14 +61,24 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   validation-slice thresholding all *worsened* ROI (precision collapse); the real
   bottleneck is the 4-failure scarcity, not calibration. (See the results doc.)
 
+## Phase 3 in progress 🔵 (this session)
+- **FastAPI inference service** (`serving/`): `POST /predict` (window of raw
+  readings → anomaly score + alert), `/health`, `/`. Pydantic validates every
+  reading against the Phase 0 physical contract → bad telemetry rejected with 422.
+- **Model bundle** (`serving/model.py`): pipeline + threshold + feature order +
+  provenance; save/load; framework-free scoring core. Train/serve features share
+  one aggregation (`pipelines/features.aggregate_window`) — no feature skew.
+- **Docker**: `Dockerfile` (non-root, healthcheck) + `docker-compose.yml`; model
+  artifact mounted, never baked in. Smoke-tested live on real data (normal → no
+  alert, June-failure window → alert; out-of-range → 422).
+
 ## Next steps (in order)
-1. **[Phase 2]** **Sequence models** (LSTM / Temporal-CNN) over the raw stream to
-   capture temporal shape the per-window aggregates discard.
-2. **[Phase 2]** Layer in **Backblaze** Drive Stats — fleet scale + many failures
-   (fixes the "only 2 scorable folds" / label-scarcity limitation); register best
-   model in MLflow.
-3. **[Phase 3]** Productionize: FastAPI serving + schema validation, Docker, CI/CD
-   metric gate, registry stages + rollback.
+1. **[Phase 3]** **CI metric gate**: a job that rebuilds the model and fails the
+   build if ROC-AUC/recall regress below a threshold; dependency/image scan.
+2. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
+3. **[Phase 4]** Observability: Prometheus + Grafana, Evidently drift on the live
+   EIA feed → retrain trigger.
+4. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).

@@ -17,10 +17,12 @@ htmlcov/
 
 # Data & artifacts (real data is fetched, never committed)
 data/
+models/
 mlruns/
 mlartifacts/
 mlflow.db
 *.parquet
+*.joblib
 *.csv
 !tests/**/*.csv
 

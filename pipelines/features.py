@@ -21,6 +21,39 @@ from pipelines.metropt3_schema import ANALOG_SENSORS, DIGITAL_SIGNALS
 
 WINDOW_START = "window_start"
 
+# Per-analog summary stats, in the order they appear in the feature vector. Kept as
+# a module constant so training (`build_windowed_features`) and serving
+# (`aggregate_window`) produce features in the *identical* order — a feature-skew
+# bug between train and serve is one of the classic ways a model silently rots.
+ANALOG_STATS: tuple[str, ...] = ("mean", "std", "min", "max")
+
+
+def feature_names() -> list[str]:
+    """Canonical ordered feature-column names (analog stats, then digital duties)."""
+    names = [f"{c}_{stat}" for c in ANALOG_SENSORS for stat in ANALOG_STATS]
+    names += [f"{c}_mean" for c in DIGITAL_SIGNALS]
+    return names
+
+
+def aggregate_window(df: pd.DataFrame) -> dict[str, float]:
+    """Summarise one window's raw rows into the feature dict the model consumes.
+
+    Same statistics as :func:`build_windowed_features` for a single window, so a
+    request to the serving API yields exactly the features the model trained on.
+    ``std`` is NaN for a single row; we fill 0.0 to match the training pipeline.
+    """
+    feats: dict[str, float] = {}
+    for c in ANALOG_SENSORS:
+        s = df[c].astype(float)
+        feats[f"{c}_mean"] = float(s.mean())
+        std = s.std()  # ddof=1, matching pandas .agg(["std"]) in training
+        feats[f"{c}_std"] = float(std) if pd.notna(std) else 0.0
+        feats[f"{c}_min"] = float(s.min())
+        feats[f"{c}_max"] = float(s.max())
+    for c in DIGITAL_SIGNALS:
+        feats[f"{c}_mean"] = float(df[c].astype(float).mean())
+    return feats
+
 
 def build_windowed_features(
     df: pd.DataFrame,

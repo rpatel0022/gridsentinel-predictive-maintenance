@@ -1,0 +1,15 @@
+# Local stack for the GridSentinel inference service.
+#   1. Build the model artifact:  python -m serving.build_artifact "MetroPT3(AirCompressor).csv"
+#   2. docker compose up --build
+#   3. curl localhost:8000/health   ·   open localhost:8000/docs
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the locally-built model bundle (gitignored, never in the image).
+      - ./models:/models:ro
+    environment:
+      MODEL_PATH: /models/anomaly_detector.joblib
+    restart: unless-stopped
