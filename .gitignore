@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Data & artifacts (real data is fetched, never committed)
+data/
+mlruns/
+*.parquet
+*.csv
+!tests/**/*.csv
+
+# Secrets — zero keys in git (see ADR on security)
+.env
+*.env
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
