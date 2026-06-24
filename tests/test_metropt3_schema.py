@@ -12,6 +12,7 @@ pytest.importorskip("pandera")
 
 from pandera.errors import SchemaError, SchemaErrors  # noqa: E402
 from pipelines.metropt3_schema import (  # noqa: E402
+    ANALOG_RANGES,
     ANALOG_SENSORS,
     DIGITAL_SIGNALS,
     build_schema,
@@ -46,6 +47,23 @@ def test_digital_signal_must_be_binary():
     df.loc[0, DIGITAL_SIGNALS[0]] = 2  # not in {0, 1}
     with pytest.raises((SchemaError, SchemaErrors)):
         validate(df)
+
+
+def test_analog_out_of_physical_range_rejected():
+    df = _valid_frame()
+    # A stuck/garbage reading well above the channel's physical bound.
+    sensor = ANALOG_SENSORS[0]
+    df.loc[0, sensor] = ANALOG_RANGES[sensor][1] + 1000.0
+    with pytest.raises((SchemaError, SchemaErrors)):
+        validate(df)
+
+
+def test_in_range_value_accepted():
+    df = _valid_frame()
+    # Midpoint of each channel's physical range is valid.
+    for sensor, (low, high) in ANALOG_RANGES.items():
+        df[sensor] = [(low + high) / 2] * len(df)
+    validate(df)
 
 
 def test_null_analog_rejected():
