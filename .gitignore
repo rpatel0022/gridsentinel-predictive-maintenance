@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Data & artifacts (real data is fetched, never committed)
+data/
+models/
+mlruns/
+mlartifacts/
+mlflow.db
+*.parquet
+*.joblib
+*.csv
+!tests/**/*.csv
+# Small committed dashboard assets (real, ~180KB) — keep despite the *.csv rule.
+!reports/assets/*.csv
+# 7MB generated interactive dashboard — rebuild via `make dashboard-static`.
+docs/dashboard.html
+
+# Secrets — zero keys in git (see ADR on security)
+.env
+*.env
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

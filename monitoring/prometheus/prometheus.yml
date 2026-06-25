@@ -1,0 +1,13 @@
+# Prometheus scrape config for the GridSentinel stack.
+# Scrapes the inference service's /metrics endpoint every 15s.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: gridsentinel-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          service: gridsentinel

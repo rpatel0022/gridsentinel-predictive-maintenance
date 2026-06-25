@@ -1,0 +1,67 @@
+name: Model eval
+
+# The heavy gate: rebuild the model on the real data and fail if it regresses.
+# Runs on demand, weekly, and on PRs that touch modeling/serving code — NOT on
+# every push, so the fast quality CI stays fast.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  pull_request:
+    paths:
+      - "pipelines/**"
+      - "serving/**"
+      - "src/**"
+      - "pyproject.toml"
+      - ".github/workflows/model-eval.yml"
+
+jobs:
+  metric-gate:
+    name: Rebuild & gate on real metrics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[pipelines,modeling]"
+
+      - name: Cache MetroPT-3 dataset
+        id: cache-data
+        uses: actions/cache@v4
+        with:
+          path: data/MetroPT3.csv
+          key: metropt3-uci-791-v1
+
+      - name: Download MetroPT-3 (real data, UCI #791)
+        if: steps.cache-data.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data
+          curl -sSL -o data/metropt3.zip \
+            "https://archive.ics.uci.edu/static/public/791/metropt+3+dataset.zip"
+          unzip -o data/metropt3.zip -d data
+          mv "data/MetroPT3(AirCompressor).csv" data/MetroPT3.csv
+
+      - name: Metric gate
+        run: python -m pipelines.metric_gate --csv data/MetroPT3.csv
+
+  image-scan:
+    name: Build image & scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t gridsentinel:ci .
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: gridsentinel:ci
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
