@@ -4,6 +4,11 @@
 maintenance cost ~X% vs schedule-based upkeep** — runs in production with full
 MLOps, detects its own drift, retrains automatically, and ships to the edge.
 
+![GridSentinel results dashboard](docs/dashboard.png)
+
+> _Results at a glance (all from real data). Interactive version:_ `make dashboard`
+> _(Streamlit) — or open the generated `docs/dashboard.html`._
+
 > _`~X%` is the full-system target. **Phase 1 baseline (first real number):** on a
 > held-out failure under strict temporal CV, the cost-tuned XGBoost leak detector
 > cuts expected maintenance cost **~60% vs the best fixed schedule** (ROC-AUC 0.92,

@@ -60,6 +60,15 @@ loadtest:  ## Load-test the serving API (needs models/ built)
 status:  ## Operational status: live model, thresholds, audit trail
 	python -m serving.status
 
+dashboard-assets: backblaze-data  ## Precompute small dashboard assets from real data
+	python -m reports.precompute --metropt "$(DATA)" --backblaze data/backblaze_drive_dates.csv
+
+dashboard:  ## Launch the interactive Streamlit results dashboard
+	streamlit run reports/app.py
+
+dashboard-static:  ## Build the static PNG + interactive HTML dashboards
+	python -m reports.dashboard --metropt "$(DATA)" --backblaze data/backblaze_drive_dates.csv --format both --out docs/dashboard.png
+
 selfheal:  ## Run one retrain -> gate -> promote/keep cycle
 	python -m monitoring.self_heal "$(DATA)"
 

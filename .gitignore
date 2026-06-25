@@ -25,6 +25,10 @@ mlflow.db
 *.joblib
 *.csv
 !tests/**/*.csv
+# Small committed dashboard assets (real, ~180KB) — keep despite the *.csv rule.
+!reports/assets/*.csv
+# 7MB generated interactive dashboard — rebuild via `make dashboard-static`.
+docs/dashboard.html
 
 # Secrets — zero keys in git (see ADR on security)
 .env

@@ -1,0 +1,54 @@
+{
+  "model_auc": {
+    "Anomaly (IsolationForest)": 0.95,
+    "MLP sequence": 0.93,
+    "XGBoost (supervised)": 0.92,
+    "Backblaze fleet RF": 0.73,
+    "LSTM": 0.63
+  },
+  "lead_times": {
+    "2020-04-18": 19.5,
+    "2020-05-29": 0.2,
+    "2020-06-05": 47.8,
+    "2020-07-15": 47.8
+  },
+  "anomaly_threshold": 0.015943084724285832,
+  "failures": [
+    {
+      "start": "2020-04-18 00:00:00",
+      "end": "2020-04-18 23:59:00"
+    },
+    {
+      "start": "2020-05-29 23:30:00",
+      "end": "2020-05-30 06:00:00"
+    },
+    {
+      "start": "2020-06-05 10:00:00",
+      "end": "2020-06-07 14:30:00"
+    },
+    {
+      "start": "2020-07-15 14:30:00",
+      "end": "2020-07-15 19:00:00"
+    }
+  ],
+  "metropt": {
+    "failures": 4,
+    "windows": 25484
+  },
+  "backblaze": {
+    "drives_total": 418351,
+    "failures_total": 24270,
+    "models": 161,
+    "cohort_drives": 207557,
+    "cohort_failures": 3052,
+    "roc_auc": 0.73
+  },
+  "headline": {
+    "anomaly_roc_auc": 0.95,
+    "anomaly_recall": 0.89,
+    "p99_ms": 31,
+    "cost_savings_pct": 60,
+    "ml_test_score": 4.5,
+    "tests": 140
+  }
+}
