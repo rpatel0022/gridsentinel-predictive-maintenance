@@ -10,6 +10,7 @@ from serving.registry import (
     promote,
     register,
     rollback,
+    set_threshold,
 )
 
 
@@ -19,6 +20,7 @@ class _Bundle:
 
     version: str
     metrics: dict
+    threshold: float = 0.0
 
 
 def test_register_sets_candidate():
@@ -63,6 +65,20 @@ def test_rollback_without_history_raises():
         rollback(s, "t2")
 
 
+def test_set_threshold_records_override_and_audit():
+    s = set_threshold(empty_state(), PRODUCTION, 0.123, "t0")
+    assert s["stage_thresholds"][PRODUCTION] == 0.123
+    assert s["audit"][-1]["action"] == "set_threshold"
+    assert s["audit"][-1]["threshold"] == 0.123
+
+
+def test_set_threshold_backward_compatible_state():
+    # A registry written before stage_thresholds existed still accepts overrides.
+    legacy = {"stages": {PRODUCTION: "v1"}, "versions": {}, "production_history": [], "audit": []}
+    s = set_threshold(legacy, PRODUCTION, 0.5, "t0")
+    assert s["stage_thresholds"][PRODUCTION] == 0.5
+
+
 def test_pure_functions_do_not_mutate_input():
     s0 = register(empty_state(), "v1", "t0")
     before = s0["stages"][PRODUCTION]
@@ -85,3 +101,17 @@ def test_registry_class_roundtrip(tmp_path):
 
     # Reopen from disk — state persisted.
     assert ModelRegistry(str(tmp_path)).stage_version(PRODUCTION) == "v1"
+
+
+def test_load_applies_stage_threshold_override(tmp_path):
+    pytest.importorskip("joblib")
+    from serving.registry import ModelRegistry
+
+    reg = ModelRegistry(str(tmp_path))
+    reg.register(_Bundle("v1", {"roc_auc": 0.95}, threshold=0.9), "t0")
+    reg.promote("v1", "t1")
+    assert reg.load(PRODUCTION).threshold == 0.9  # bundle default
+    reg.set_threshold(PRODUCTION, 0.4, "t2")  # operator lowers it
+    assert reg.load(PRODUCTION).threshold == 0.4  # override applied
+    # Persisted across reopen.
+    assert ModelRegistry(str(tmp_path)).load(PRODUCTION).threshold == 0.4

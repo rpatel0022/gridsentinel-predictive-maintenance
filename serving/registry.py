@@ -27,6 +27,7 @@ def empty_state() -> dict:
         "stages": {PRODUCTION: None, CANDIDATE: None},
         "versions": {},
         "production_history": [],
+        "stage_thresholds": {},
         "audit": [],
     }
 
@@ -77,6 +78,19 @@ def rollback(state: dict, at: str) -> dict:
     return state
 
 
+def set_threshold(state: dict, stage: str, threshold: float, at: str) -> dict:
+    """Set an operator alert-threshold override for ``stage`` (pure).
+
+    Lets an operator tune a stage's operating point without rebuilding the model —
+    e.g. lower the edge stage's threshold to recover recall (see the edge benchmark)
+    — while the bundle's own default threshold stays put for other stages.
+    """
+    state = copy.deepcopy(state)
+    state.setdefault("stage_thresholds", {})[stage] = threshold
+    _audit(state, "set_threshold", state["stages"].get(stage), at, stage=stage, threshold=threshold)
+    return state
+
+
 class ModelRegistry:
     """Directory-backed registry: ``<root>/registry.json`` + ``<root>/<version>.joblib``."""
 
@@ -120,14 +134,25 @@ class ModelRegistry:
     def stage_version(self, stage: str) -> str | None:
         return self.state["stages"].get(stage)
 
+    def set_threshold(self, stage: str, threshold: float, at: str) -> None:
+        self.state = set_threshold(self.state, stage, threshold, at)
+        self._save_state()
+
+    def stage_threshold(self, stage: str) -> float | None:
+        return self.state.get("stage_thresholds", {}).get(stage)
+
     def load(self, stage: str = PRODUCTION):
-        """Load the bundle currently in ``stage``."""
+        """Load the bundle in ``stage``, applying any operator threshold override."""
         import joblib
 
         version = self.stage_version(stage)
         if version is None:
             raise FileNotFoundError(f"no model in stage {stage}")
-        return joblib.load(self._bundle_path(version))
+        bundle = joblib.load(self._bundle_path(version))
+        override = self.stage_threshold(stage)
+        if override is not None:
+            bundle.threshold = override
+        return bundle
 
     @property
     def audit(self) -> list[dict]:

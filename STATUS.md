@@ -149,11 +149,17 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   (Writing them surfaced that Isolation-Forest scores aren't monotone in the tail —
   encoded honestly rather than asserting a false expectation.)
 
+- **Registry per-stage thresholds** (`serving/registry.py`): operators can override a
+  stage's alert threshold via `set_threshold()` (audit-logged, applied on `load`)
+  without rebuilding — closes the edge-benchmark caveat (edge stage runs a lower
+  threshold than cloud). Pure logic unit-tested + joblib round-trip.
+
 ## Next steps (blocked / follow-on — need a different environment)
-1. **[data]** Backblaze fleet dataset — download is 403/JS-gated in-sandbox; deferred
-   (not faked — the 100%-real-data rule). Needs data access.
-2. **[ML]** True LSTM/TCN — PyTorch CPU index proxy-blocked; needs a DL framework.
-3. **[polish]** Per-stage thresholds in the registry; optional Phase 6 GenAI/RAG.
+1. **[data]** Backblaze fleet dataset — re-probed: still 403/JS-gated in-sandbox;
+   deferred (not faked — the 100%-real-data rule). Needs data access.
+2. **[ML]** True LSTM/TCN — re-probed: PyTorch CPU index still proxy-blocked; needs a
+   DL framework.
+3. **[polish]** Optional Phase 6 GenAI/RAG bridge (needs an LLM key).
 
 > **Core system (Phases 0–5) is complete and tested (113 tests).** The two biggest
 > remaining items (Backblaze, real LSTM) are both blocked by the sandbox environment

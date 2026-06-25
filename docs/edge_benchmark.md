@@ -35,7 +35,9 @@ some failure windows slip under it.
 
 ## Honest caveats
 
-- Recall is measured at a *fixed* threshold; a per-model tuned threshold would narrow the
-  gap (future work — tie this into the registry so each stage carries its own threshold).
+- Recall is measured at a *fixed* threshold; a per-model tuned threshold narrows the gap.
+  This is now supported — the registry carries an optional **per-stage threshold
+  override** (`ModelRegistry.set_threshold`), so an edge stage can run a lower alert
+  threshold than the cloud default without rebuilding the model.
 - Only four real failures, so recall numbers are coarse; treat the size/latency reduction
   (which is data-independent) as the robust result and the accuracy delta as indicative.
