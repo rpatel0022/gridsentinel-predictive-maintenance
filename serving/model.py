@@ -51,7 +51,16 @@ def load_bundle(path: str = DEFAULT_MODEL_PATH) -> ModelBundle:
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"no model artifact at {path}; build one first")
-    return joblib.load(path)
+    bundle = joblib.load(path)
+    # Serve single-threaded *per request*: an Isolation Forest with n_jobs=-1 spawns
+    # all-core parallelism per call, so under concurrent load the threads
+    # oversubscribe the CPU and tail latency explodes (caught by the load test).
+    # Concurrency belongs at the request level, not inside one inference.
+    try:
+        bundle.detector.named_steps["iforest"].n_jobs = 1
+    except (AttributeError, KeyError):
+        pass
+    return bundle
 
 
 def score_features(bundle: ModelBundle, feats: dict[str, float]) -> tuple[float, bool]:

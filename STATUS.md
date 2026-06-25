@@ -126,6 +126,10 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   that unit tests miss. Closes the ML Test Score infra gap (3.3 → infra 6.0; final
   still 4.5, bounded by the Data/Model sections).
 
+- **Load test** (`serving/load_test.py` + `docs/load_test_results.md`): per-request
+  **p99 31 ms (< 50 ms SLO)**. Found + fixed `n_jobs=-1` thread oversubscription, and
+  documented the GIL-bound ~40 rps/process → horizontal-scaling capacity model.
+
 ## Next steps (larger, follow-on)
 1. **[ML]** Sequence models (LSTM/TCN) — gated on more failures; heavier deps.
 2. **[data]** Backblaze fleet dataset — fixes label scarcity but a whole new
