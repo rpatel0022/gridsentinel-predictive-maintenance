@@ -16,8 +16,6 @@ from __future__ import annotations
 import argparse
 import sys
 
-from monitoring.drift import drift_report
-
 
 def decide_retrain(report: dict) -> dict:
     """Gate: retrain iff the drift report flags drift. Pure."""
@@ -39,6 +37,9 @@ def run_on_samples(
     at: str,
 ) -> dict:
     """Check drift on (reference, current); run the self-heal cycle only if drifted."""
+    from monitoring.drift import drift_report  # scipy-backed; imported lazily so the
+
+    # pure decide_retrain() stays importable in the lean (scipy-free) CI environment.
     report = drift_report(reference, current, features)
     decision = decide_retrain(report)
     heal = None
