@@ -134,13 +134,21 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   (✅/◑/○ markers) — accurate models, in-house drift, file registry, edge benchmark,
   backfill, CI gate/SLO.
 
-## Next steps (larger, follow-on)
-1. **[data]** Backblaze fleet dataset — **probed this session: the download is
-   403/JS-gated and not cleanly fetchable in-sandbox.** Deferred rather than faked
-   (no pipeline against unvalidated data — the 100%-real-data rule). Needs an
-   environment with data access.
-2. **[ML]** Sequence models (LSTM/TCN) — gated on more failures; heavier deps.
+- **Neural sequence baseline** (`pipelines/sequence_model.py`): MLP over stacked
+  temporal windows (1h context) — **ROC-AUC 0.93, PR-AUC 0.51, ROI 32%**, competitive
+  with XGBoost (best supervised PR-AUC) but not beating the anomaly detector. True
+  LSTM/TCN deferred — the PyTorch CPU wheel index is proxy-blocked in-sandbox.
+  ([results](docs/sequence_model_results.md))
+
+## Next steps (blocked / follow-on — need a different environment)
+1. **[data]** Backblaze fleet dataset — download is 403/JS-gated in-sandbox; deferred
+   (not faked — the 100%-real-data rule). Needs data access.
+2. **[ML]** True LSTM/TCN — PyTorch CPU index proxy-blocked; needs a DL framework.
 3. **[polish]** Per-stage thresholds in the registry; optional Phase 6 GenAI/RAG.
+
+> **Core system (Phases 0–5) is complete and tested (113 tests).** The two biggest
+> remaining items (Backblaze, real LSTM) are both blocked by the sandbox environment
+> (data access / DL framework), not by design — they're ready to resume elsewhere.
 
 > Phases 0–5 are built and tested end-to-end (108 tests). Remaining items are larger
 > follow-on efforts (Backblaze needs data access; LSTM is label-limited), not quick
