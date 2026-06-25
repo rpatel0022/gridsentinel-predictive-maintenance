@@ -87,12 +87,18 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
 - **Grafana + Prometheus stack** (`monitoring/prometheus/`, `monitoring/grafana/`,
   `docker-compose.yml`): `docker compose up` → API + Prometheus (scrapes `/metrics`)
   + Grafana with an auto-provisioned two-tier dashboard. Config validated by tests.
+- **Model registry** (`serving/registry.py`): file-based stages (production/
+  candidate), **promote + rollback**, and an **audit trail** (governance). Pure
+  stage logic unit-tested in lean CI + a joblib round-trip. (Covers the Phase 3
+  registry/rollback item; the self-heal loop promotes through it.)
 
 ## Next steps (in order)
-1. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
-   a one-page runbook. Delayed-label backfill job.
-2. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
-3. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+1. **[Phase 4]** **Self-heal orchestrator**: drift → retrain candidate → metric-gate
+   → promote (or keep current) through the registry; alert thresholds + a one-page
+   runbook. Delayed-label backfill job.
+2. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+3. **[Phase 5]** Cloud deploy (AWS) + edge quantization; ADRs, model card, ML Test
+   Score, README ROI headline.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
