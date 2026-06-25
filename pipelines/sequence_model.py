@@ -21,8 +21,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score, roc_auc_score
-from sklearn.neural_network import MLPClassifier
 
 from gridsentinel.cost import CostModel, confusion_cost, optimal_threshold, periodic_schedule_cost
 from gridsentinel.cv import temporal_splits
@@ -47,6 +45,11 @@ def stack_sequences(X: np.ndarray, k: int) -> np.ndarray:
 
 def run(csv_path: str, *, freq: str = "10min", warn_hours: float = 2.0, k: int = 6) -> dict:
     """Train the MLP sequence baseline under temporal CV; return mean metrics."""
+    # sklearn (the `modeling` extra) is imported lazily so the pure stack_sequences()
+    # helper stays importable in the lean (sklearn-free) CI environment.
+    from sklearn.metrics import average_precision_score, roc_auc_score
+    from sklearn.neural_network import MLPClassifier
+
     feats = build_windowed_features(pd.read_csv(csv_path), freq=freq)
     cols = feature_columns(feats)
     X = feats[cols].to_numpy()
