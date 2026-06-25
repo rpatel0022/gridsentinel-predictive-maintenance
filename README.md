@@ -81,17 +81,30 @@ ruff check . && ruff format --check .
 pytest
 ```
 
-## Run the models
+## Run it
+
+`make help` lists every workflow. Fetch real MetroPT-3 (UCI #791 — never committed),
+point `DATA` at it, then:
 
 ```bash
-pip install -e ".[dev,pipelines,modeling]"
-# Fetch real MetroPT-3 (UCI #791) — never committed; then:
-python -m pipelines.data_quality "MetroPT3(AirCompressor).csv"     # validate + profile
-python -m pipelines.train_baseline "MetroPT3(AirCompressor).csv"   # RF/XGBoost → MLflow
-python -m pipelines.anomaly "MetroPT3(AirCompressor).csv"          # Isolation Forest → MLflow
+make install                 # dev + pipelines + modeling + serving extras
+make data-quality            # validate + profile the real data
+make anomaly                 # train + evaluate the anomaly detector (MLflow)
+make gate                    # metric gate: fail if the model regresses
+make artifact serve          # build the bundle and run the API (localhost:8000/docs)
+make docker                  # API + Prometheus + Grafana stack
 ```
 
-Runs are tracked in MLflow (defaults to a local `sqlite:///mlflow.db`). Results:
+**Operate it** (the self-healing surface):
+
+```bash
+make selfheal                # one retrain → gate → promote/keep cycle
+make retrain-if-drift        # retrain only if the live EIA feed has drifted
+make status                  # live model, in-force threshold, audit trail
+make loadtest edge           # p99 SLO load test · edge size/latency benchmark
+```
+
+Runs are tracked in MLflow (local `sqlite:///mlflow.db`). Results:
 [Phase 1 baseline](docs/phase1_baseline_results.md) ·
 [Phase 2 anomaly detection](docs/phase2_anomaly_results.md).
 
