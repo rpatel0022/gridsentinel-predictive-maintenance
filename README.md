@@ -44,11 +44,11 @@ model = CostModel(cost_fn=1000.0, cost_fp=10.0, cost_tp=10.0)  # missed failure 
 threshold, cost = optimal_threshold(y_true, y_score, model)     # ROI-optimal cutoff, not 0.5
 ```
 
-## Requirement → project traceability (curated to the Telular ML Engineer role)
+## Capability → project traceability
 
 ✅ built · ◑ partial · ○ planned. The point is the proof column — each is openable.
 
-| Posting requirement | | Proof artifact |
+| ML capability | | Proof artifact |
 |---|---|---|
 | Supervised learning | ✅ | RF / XGBoost detectors, temporal CV, cost-tuned threshold — `pipelines/train_baseline.py`, [results](docs/phase1_baseline_results.md) |
 | Unsupervised learning | ✅ | Isolation-Forest anomaly detection (ROC-AUC 0.95) — `pipelines/anomaly.py`, [results](docs/phase2_anomaly_results.md) |

@@ -2,8 +2,9 @@
 
 _Reproduce: `python -m serving.benchmark "MetroPT3(AirCompressor).csv"`._
 
-Telular ships edge devices, so the real question isn't "can it run on the edge?" but
-"what does a smaller, faster model *cost*?". Isolation Forests don't int8-quantize like
+IoT fleets often run inference on constrained edge devices, so the real question isn't
+"can it run on the edge?" but "what does a smaller, faster model *cost*?". Isolation
+Forests don't int8-quantize like
 neural nets; the equivalent lever is the **ensemble size** (`n_estimators`). Measured on
 the real MetroPT-3 data (single-window inference, the serving path):
 
