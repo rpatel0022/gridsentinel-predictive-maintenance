@@ -139,6 +139,10 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   with XGBoost (best supervised PR-AUC) but not beating the anomaly detector. True
   LSTM/TCN deferred — the PyTorch CPU wheel index is proxy-blocked in-sandbox.
   ([results](docs/sequence_model_results.md))
+- **Model-behavioral tests** (`tests/test_model_behavior.py`): CheckList-style —
+  minimum-functionality, directional-expectation, order-invariance, noise-stability.
+  (Writing them surfaced that Isolation-Forest scores aren't monotone in the tail —
+  encoded honestly rather than asserting a false expectation.)
 
 ## Next steps (blocked / follow-on — need a different environment)
 1. **[data]** Backblaze fleet dataset — download is 403/JS-gated in-sandbox; deferred
