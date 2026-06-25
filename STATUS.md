@@ -159,11 +159,16 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   and the recent audit trail — ties registry + self-heal together for on-call. Pure
   report core unit-tested; wired into the runbook.
 
+- **Real LSTM** (`pipelines/lstm_model.py`): **UNBLOCKED** — `tensorflow-cpu` installs
+  fine from default PyPI (only PyTorch's wheel index is blocked). A genuine LSTM under
+  the same temporal CV; honest result: **ROC-AUC 0.63, underperforms** all other
+  models — too few failures to fit a recurrent net. Confirms the bottleneck is data,
+  not model class. ([results](docs/lstm_results.md))
+
 ## Next steps (blocked / follow-on — need a different environment)
-1. **[data]** Backblaze fleet dataset — re-probed: still 403/JS-gated in-sandbox;
-   deferred (not faked — the 100%-real-data rule). Needs data access.
-2. **[ML]** True LSTM/TCN — re-probed: PyTorch CPU index still proxy-blocked; needs a
-   DL framework.
+1. **[data]** Backblaze fleet dataset — still 403/JS-gated direct; **try alternatives**:
+   an allowlisted mirror, or the user dropping the CSV in Google Drive (MCP) for me to
+   read. The single highest-leverage unblock (gives the LSTM enough failures to matter).
 3. **[blocked]** Optional Phase 6 GenAI/RAG bridge — re-probed: no LLM key /
    anthropic SDK in-sandbox, so the generation half isn't feasible; skipped rather
    than shipping retrieval-only scaffolding.

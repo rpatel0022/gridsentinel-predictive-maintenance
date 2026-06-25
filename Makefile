@@ -32,6 +32,9 @@ train:  ## Train the RF/XGBoost baselines (MLflow)
 anomaly:  ## Train + evaluate the anomaly detector (MLflow)
 	python -m pipelines.anomaly "$(DATA)"
 
+lstm:  ## Train + evaluate the LSTM sequence model (needs the dl extra)
+	python -m pipelines.lstm_model "$(DATA)"
+
 gate:  ## Run the metric gate on the real data
 	python -m pipelines.metric_gate --csv "$(DATA)"
 
