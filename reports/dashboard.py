@@ -207,13 +207,16 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
     return out
 
 
-def build_html(metropt_csv: str, backblaze_csv: str, out: str) -> str:
-    """Self-contained interactive HTML dashboard (Plotly) — opens in any browser."""
+def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, return_fig=False):
+    """Interactive Plotly dashboard. Returns the figure if ``return_fig`` else writes ``out``."""
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
-    ts, scores, thr, events = _anomaly_timeline(metropt_csv)
-    smooth = pd.Series(scores).rolling(72, center=True, min_periods=1).mean()
+    ts0, scores0, thr, events = _anomaly_timeline(metropt_csv)
+    # Downsample to hourly for a light, fast-loading interactive page.
+    tl = pd.DataFrame({"ts": ts0, "s": scores0}).set_index("ts").resample("1h").mean().dropna()
+    ts, scores = tl.index, tl["s"].to_numpy()
+    smooth = pd.Series(scores).rolling(12, center=True, min_periods=1).mean()
     models_afr, afrs = _afr(backblaze_csv)
 
     fig = make_subplots(
@@ -355,8 +358,57 @@ def build_html(metropt_csv: str, backblaze_csv: str, out: str) -> str:
         template="plotly_white",
         margin=dict(t=90, l=60, r=40, b=40),
     )
-    fig.write_html(out, include_plotlyjs=True, full_html=True)
+    if return_fig:
+        return fig
+    fig.write_html(out, include_plotlyjs=plotlyjs, full_html=True)
     return out
+
+
+_SITE_TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GridSentinel — ML Portfolio · Rushi Patel</title>
+<style>
+ body{{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2d3d;background:#f5f7fa}}
+ header{{background:#1f3a5f;color:#fff;padding:28px 6%}}
+ header h1{{margin:0;font-size:30px}} header p{{margin:6px 0 14px;color:#cbd6e6;font-size:15px;max-width:820px}}
+ .badges span{{display:inline-block;background:#1b9e9e;color:#fff;border-radius:14px;padding:4px 12px;margin:4px 6px 0 0;font-size:13px;font-weight:600}}
+ .links a{{color:#fff;text-decoration:none;border:1px solid #4a6385;border-radius:6px;padding:6px 12px;margin:10px 8px 0 0;display:inline-block;font-size:13px}}
+ .links a:hover{{background:#2c4a72}}
+ main{{max-width:1180px;margin:24px auto;padding:0 16px}}
+ .card{{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:10px;margin-bottom:22px}}
+ footer{{text-align:center;color:#7f8c8d;font-size:13px;padding:24px}}
+</style></head><body>
+<header>
+ <h1>⚡ GridSentinel</h1>
+ <p>A production-grade, self-healing predictive-maintenance &amp; fleet-reliability ML system — two real datasets, full MLOps lifecycle, every result computed from real data.</p>
+ <div class="badges"><span>Anomaly ROC-AUC 0.95</span><span>24,270 real fleet failures</span><span>p99 31 ms</span><span>−60% cost</span><span>ML Test Score 4.5</span><span>143 tests green</span></div>
+ <div class="links"><a href="{repo}">GitHub repo</a><a href="{repo}/blob/{branch}/README.md">README</a><a href="{repo}/blob/{branch}/docs/model_card.md">Model card</a><a href="{repo}/blob/{branch}/docs/ml_test_score.md">ML Test Score</a><a href="{repo}/blob/{branch}/docs/architecture.md">Architecture</a></div>
+</header>
+<main><div class="card">{chart}</div></main>
+<footer>Built with Python · scikit-learn · TensorFlow · FastAPI · MLflow · Prometheus/Grafana · Streamlit · Plotly. Interactive board above — hover, zoom, pan.</footer>
+</body></html>"""
+
+
+def build_site(
+    metropt_csv: str, backblaze_csv: str, out_dir: str, *, repo: str, branch: str
+) -> str:
+    """Build a self-contained GitHub-Pages portfolio site (interactive board + header)."""
+    import os
+    import shutil
+
+    fig = build_html(metropt_csv, backblaze_csv, None, return_fig=True)
+    fig.update_layout(title=None, margin=dict(t=40, l=60, r=40, b=40))
+    chart = fig.to_html(full_html=False, include_plotlyjs="cdn")
+    os.makedirs(out_dir, exist_ok=True)
+    index = os.path.join(out_dir, "index.html")
+    with open(index, "w") as fh:
+        fh.write(_SITE_TEMPLATE.format(chart=chart, repo=repo, branch=branch))
+    if os.path.exists("docs/dashboard.png"):
+        shutil.copy("docs/dashboard.png", os.path.join(out_dir, "dashboard.png"))
+    return index
+
+
+REPO = "https://github.com/rpatel0022/ametek-ml-engineer-project"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -364,12 +416,16 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--metropt", required=True)
     p.add_argument("--backblaze", required=True)
     p.add_argument("--out", default="docs/dashboard.png")
-    p.add_argument("--format", choices=["png", "html", "both"], default="png")
+    p.add_argument("--format", choices=["png", "html", "both", "pages"], default="png")
+    p.add_argument("--repo", default=REPO)
+    p.add_argument("--branch", default="main")
     a = p.parse_args(argv)
     if a.format in ("png", "both"):
         print("wrote", build(a.metropt, a.backblaze, a.out.replace(".html", ".png")))
     if a.format in ("html", "both"):
         print("wrote", build_html(a.metropt, a.backblaze, a.out.replace(".png", ".html")))
+    if a.format == "pages":
+        print("wrote", build_site(a.metropt, a.backblaze, "site", repo=a.repo, branch=a.branch))
     return 0
 
 
