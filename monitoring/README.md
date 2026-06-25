@@ -17,7 +17,9 @@ Observability and self-healing (Phase 4).
   The dashboard shows both tiers: prediction/alert rate, anomaly-score p50/p99
   (model leading indicators), request-latency p99, and validation-error rate.
 
-## To come
-
-The delayed-label backfill job and the drift → retrain → canary → promote →
-rollback loop, plus the on-call runbook.
+- `self_heal.py` — drift → retrain → metric-gate → promote/keep, through the
+  registry (`docs/runbook.md` has the on-call procedures).
+- `backfill.py` — delayed-label backfill: once real failure reports arrive, re-scores
+  the stored predictions for that window against the now-known labels and logs the
+  model's **true** precision/recall/ROC-AUC. Handles the lagging-label reality
+  honestly instead of pretending labels are live.

@@ -110,11 +110,16 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   smaller, ~4× faster p99 (24→6 ms), same ROC-AUC (~0.95)**, recall cost 0.89→0.75.
   Cloud-vs-edge recommendation included.
 
+- **Delayed-label backfill** (`monitoring/backfill.py`): once real failure reports
+  arrive, re-scores the stored predictions for that window against the now-known
+  labels and logs true precision/recall/ROC-AUC (JSONL history). Honest handling of
+  lagging labels — pure core unit-tested.
+
 ## Next steps (in order)
 1. **[Phase 5]** AWS deploy notes (ECS/Fargate + S3) + a short cost note.
 2. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh.
-3. **[later]** Delayed-label backfill job; per-stage thresholds in the registry;
-   sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+3. **[later]** Per-stage thresholds in the registry; sequence models (LSTM/TCN) +
+   Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
