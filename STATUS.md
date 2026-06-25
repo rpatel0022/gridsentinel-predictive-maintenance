@@ -55,8 +55,8 @@ cares about.
 | Every headline number, with caveats | `docs/*_results.md`, `docs/model_card.md` |
 
 **Live artifacts:**
-- **Repo (main):** https://github.com/rpatel0022/ametek-ml-engineer-project
-- **Portfolio site (GitHub Pages):** https://rpatel0022.github.io/ametek-ml-engineer-project/
+- **Repo (main):** https://github.com/rpatel0022/gridsentinel-predictive-maintenance
+- **Portfolio site (GitHub Pages):** https://rpatel0022.github.io/gridsentinel-predictive-maintenance/
   — _one manual enable step pending; see §9 Deployment status._
 - **Interactive dashboard locally:** `make dashboard` (Streamlit) or open the committed
   `docs/dashboard.png` hero / generated `docs/dashboard.html`.
@@ -310,7 +310,7 @@ These show engineering judgment, not just model-building. Each is a real fix in 
     paid plan (Pro/Team/Enterprise). On a free plan, either **make the repo public** or
     upgrade for the site to actually serve. The committed `site/` builds fine either way;
     this is purely a hosting-enablement constraint.
-  - **Expected live URL once enabled:** https://rpatel0022.github.io/ametek-ml-engineer-project/
+  - **Expected live URL once enabled:** https://rpatel0022.github.io/gridsentinel-predictive-maintenance/
 
 ---
 

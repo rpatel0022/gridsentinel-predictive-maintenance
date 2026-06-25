@@ -17,4 +17,4 @@ mlflow.db
 docs/
 tests/
 PLAN.md
-ametek_*.txt
+_local_notes_*.txt

@@ -15,7 +15,7 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 > ~30% averaged over the scorable folds). Details + the honest caveats:
 > [docs/phase1_baseline_results.md](docs/phase1_baseline_results.md)._
 
-![CI](https://github.com/rpatel0022/ametek-ml-engineer-project/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/rpatel0022/gridsentinel-predictive-maintenance/actions/workflows/ci.yml/badge.svg)
 **Status:** Phase 3 — productionizing. The Phase 2 anomaly detector (ROC-AUC 0.95,
 recall 0.89, 19–48 h early warning, [results](docs/phase2_anomaly_results.md)) is
 served behind a **schema-validated FastAPI app** (`serving/`) in a **Docker** image,

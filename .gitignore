@@ -36,7 +36,7 @@ docs/dashboard.html
 !.env.example
 
 # Local-only reference notes (kept out of the public repo)
-ametek_*.txt
+_local_notes_*.txt
 
 # OS / editor
 .DS_Store

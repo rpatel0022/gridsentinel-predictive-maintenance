@@ -408,7 +408,7 @@ def build_site(
     return index
 
 
-REPO = "https://github.com/rpatel0022/ametek-ml-engineer-project"
+REPO = "https://github.com/rpatel0022/gridsentinel-predictive-maintenance"
 
 
 def main(argv: list[str] | None = None) -> int:
