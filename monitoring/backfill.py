@@ -21,6 +21,32 @@ import numpy as np
 from pipelines.labels import FAILURE_EVENTS, make_labels
 
 
+def _roc_auc(labels: np.ndarray, scores: np.ndarray) -> float:
+    """Binary ROC-AUC via the rank-sum identity (ties get mean rank).
+
+    Computed in numpy so the backfill metric needs no scikit-learn — it runs in the
+    lean environment. Returns NaN when only one class is present (AUC undefined).
+    """
+    labels = np.asarray(labels)
+    scores = np.asarray(scores, dtype=float)
+    n_pos = int((labels == 1).sum())
+    n_neg = int((labels == 0).sum())
+    if n_pos == 0 or n_neg == 0:
+        return float("nan")
+    order = np.argsort(scores, kind="mergesort")
+    s = scores[order]
+    ranks = np.empty(len(scores), dtype=float)
+    i, n = 0, len(scores)
+    while i < n:  # assign 1-based ranks, averaging ties
+        j = i
+        while j < n and s[j] == s[i]:
+            j += 1
+        ranks[order[i:j]] = (i + j - 1) / 2.0 + 1.0
+        i = j
+    sum_ranks_pos = ranks[labels == 1].sum()
+    return float((sum_ranks_pos - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg))
+
+
 def backfill_performance(
     timestamps,
     scores,
@@ -41,8 +67,7 @@ def backfill_performance(
         at: Optional ISO timestamp stamped onto the record.
 
     Returns:
-        Confusion counts, precision, recall (and ROC-AUC if both classes present
-        and scikit-learn is installed).
+        Confusion counts, precision, recall (and ROC-AUC if both classes present).
     """
     labels = make_labels(timestamps, warn_hours=warn_hours, label_active=True, events=events)
     labels = labels.to_numpy()
@@ -65,12 +90,7 @@ def backfill_performance(
         "recall": tp / (tp + fn) if (tp + fn) else 0.0,
     }
     if len(set(labels.tolist())) == 2:
-        try:
-            from sklearn.metrics import roc_auc_score
-
-            result["roc_auc"] = float(roc_auc_score(labels, scores))
-        except ImportError:
-            pass
+        result["roc_auc"] = _roc_auc(labels, scores)
     return result
 
 
