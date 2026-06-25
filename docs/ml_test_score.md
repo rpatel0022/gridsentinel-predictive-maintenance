@@ -30,13 +30,13 @@ for every point — gaps are marked plainly.
 |2.6| Quality on data slices | 0.5 | per-failure breakdown in the results docs |
 |2.7| Fairness / inclusion | 0.5 | N/A for industrial sensors — documented as such |
 
-## 3. ML infrastructure — **5.5**
+## 3. ML infrastructure — **6.0**
 
 | # | Test | Score | Evidence / gap |
 |---|---|---|---|
 |3.1| Training is reproducible | 1 | seeded; identical metrics across reruns |
 |3.2| Model specs are unit tested | 1 | `tests/test_serving.py`, `test_anomaly.py` |
-|3.3| Full pipeline integration tested | 0.5 | end-to-end demo run; not yet a CI integration test |
+|3.3| Full pipeline integration tested | 1 | `tests/test_integration.py` — features→train→registry→serve→predict |
 |3.4| Quality validated before serving | 1 | the metric gate (`pipelines/metric_gate.py`) + `model-eval` CI |
 |3.5| Model is debuggable | 0.5 | metrics + audit trail; no dedicated debug tooling |
 |3.6| Canary before serving | 0.5 | promotion gate + registry; no live traffic-split canary |
@@ -60,9 +60,12 @@ for every point — gaps are marked plainly.
 |---|---|
 | Data & features | 4.5 |
 | Model development | 4.5 |
-| ML infrastructure | 5.5 |
+| ML infrastructure | 6.0 |
 | Monitoring | 5.0 |
 | **Final (minimum)** | **4.5** |
+
+_(The final score is bounded by Data & Model at 4.5; closing the integration-test
+gap lifted Infrastructure to 6.0 but not the minimum.)_
 
 **Interpretation (rubric scale):** > 3 indicates *"strong levels of automated testing
 and monitoring, appropriate for mission-critical systems."* A 4.5 is a strong result —

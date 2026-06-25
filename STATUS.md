@@ -121,11 +121,19 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   down). Validated by tests (structure + no-leaked-secret). Documented target, not
   applied from the repo.
 
-## Next steps (in order)
-1. **[docs]** Requirement-traceability refresh in the README (map each posting
-   requirement → the now-built artifact) + tighten the ROI framing.
-2. **[later]** Per-stage thresholds in the registry; sequence models (LSTM/TCN) +
-   Backblaze fleet data for scale.
+- **End-to-end integration test** (`tests/test_integration.py`): features → train →
+  registry → serve → predict on synthetic data — catches cross-module wiring breaks
+  that unit tests miss. Closes the ML Test Score infra gap (3.3 → infra 6.0; final
+  still 4.5, bounded by the Data/Model sections).
+
+## Next steps (larger, follow-on)
+1. **[ML]** Sequence models (LSTM/TCN) — gated on more failures; heavier deps.
+2. **[data]** Backblaze fleet dataset — fixes label scarcity but a whole new
+   ingestion pipeline + large download.
+3. **[polish]** Per-stage thresholds in the registry; optional Phase 6 GenAI/RAG.
+
+> Phases 0–5 are built and tested end-to-end (107 tests). The remaining items are
+> larger follow-on efforts rather than quick wins.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
