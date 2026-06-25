@@ -97,12 +97,19 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   real data** (register → promote → audit). On-call **runbook** at `docs/runbook.md`
   (alert thresholds + retrain/rollback procedures). *Phase 4 self-healing loop done.*
 
+## Phase 5 / docs in progress 🔵 (autonomous loop)
+- **ADRs** for the real forks made this session: `0002` anomaly-detection-as-primary
+  (+ calibration rejected), `0003` serving + file-registry stack, `0004` in-house
+  PSI/KS drift over Evidently.
+
 ## Next steps (in order)
-1. **[Phase 5]** Cloud deploy notes (AWS ECS/Fargate + S3) + **edge quantization**
+1. **[docs]** **Model card** (data, metrics, calibration/limits, drift behavior) +
+   **Google ML Test Score** self-assessment in the README.
+2. **[Phase 5]** Cloud deploy notes (AWS ECS/Fargate + S3) + **edge quantization**
    with measured size/latency reduction.
-2. **[Phase 5/docs]** ADRs for the real forks, **model card**, **ML Test Score**,
-   and the quantified ROI headline in the README.
-3. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
+3. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh in
+   the README.
+4. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
    fleet data for scale.
 
 ## How to resume
