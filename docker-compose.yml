@@ -1,7 +1,8 @@
-# Local stack for the GridSentinel inference service.
+# Local observability stack: inference API + Prometheus + Grafana.
 #   1. Build the model artifact:  python -m serving.build_artifact "MetroPT3(AirCompressor).csv"
 #   2. docker compose up --build
-#   3. curl localhost:8000/health   ·   open localhost:8000/docs
+#   3. API   localhost:8000/docs   ·   Prometheus localhost:9090
+#      Grafana localhost:3000 (admin/admin) → the "GridSentinel" dashboard is auto-provisioned
 services:
   api:
     build: .
@@ -12,4 +13,28 @@ services:
       - ./models:/models:ro
     environment:
       MODEL_PATH: /models/anomaly_detector.joblib
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
     restart: unless-stopped

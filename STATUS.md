@@ -84,13 +84,15 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   Dependency-light, deterministic, tested. `monitoring/eia_drift.py` runs it on the
   **live EIA feed** — verified real seasonal drift (PJM winter vs now: PSI 0.46,
   KS p 0.009, drift detected). This is the retrain-trigger signal.
+- **Grafana + Prometheus stack** (`monitoring/prometheus/`, `monitoring/grafana/`,
+  `docker-compose.yml`): `docker compose up` → API + Prometheus (scrapes `/metrics`)
+  + Grafana with an auto-provisioned two-tier dashboard. Config validated by tests.
 
 ## Next steps (in order)
-1. **[Phase 4]** **Grafana** dashboards + Prometheus scrape wired into docker-compose.
-2. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
+1. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
    a one-page runbook. Delayed-label backfill job.
-3. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
-4. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+2. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
+3. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
