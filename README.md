@@ -92,10 +92,20 @@ Runs are tracked in MLflow (defaults to a local `sqlite:///mlflow.db`). Results:
 [Phase 1 baseline](docs/phase1_baseline_results.md) ·
 [Phase 2 anomaly detection](docs/phase2_anomaly_results.md).
 
-## Key decisions
+## Engineering docs & artifacts
 
-- [ADR 0001 — dataset, live feed, and cloud](docs/adr/0001-dataset-feed-and-cloud.md):
-  MetroPT-3 (+ Backblaze) · EIA live feed · AWS.
+The artifact makes the claim — each of these is openable:
+
+- **Results:** [Phase 1 baseline](docs/phase1_baseline_results.md) ·
+  [Phase 2 anomaly detection](docs/phase2_anomaly_results.md) ·
+  [data-quality spike](docs/data_quality_metropt3.md)
+- **Decisions (ADRs):** [0001 dataset/feed/cloud](docs/adr/0001-dataset-feed-and-cloud.md) ·
+  [0002 anomaly-detection primary](docs/adr/0002-anomaly-detection-primary.md) ·
+  [0003 serving + registry](docs/adr/0003-serving-and-registry-stack.md) ·
+  [0004 drift approach](docs/adr/0004-drift-detection-approach.md)
+- **Governance & ops:** [model card](docs/model_card.md) ·
+  [Google ML Test Score (4.5)](docs/ml_test_score.md) ·
+  [on-call runbook](docs/runbook.md)
 
 See [PLAN.md](PLAN.md) for the full strategy, phased build, and how each phase
 proves itself.

@@ -98,18 +98,18 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   (alert thresholds + retrain/rollback procedures). *Phase 4 self-healing loop done.*
 
 ## Phase 5 / docs in progress 🔵 (autonomous loop)
-- **ADRs** for the real forks made this session: `0002` anomaly-detection-as-primary
-  (+ calibration rejected), `0003` serving + file-registry stack, `0004` in-house
-  PSI/KS drift over Evidently.
+- **ADRs** for the real forks: `0002` anomaly-as-primary (+ calibration rejected),
+  `0003` serving + file-registry stack, `0004` in-house PSI/KS drift.
+- **Model card** (`docs/model_card.md`) — intended use, real metrics, honest limits,
+  governance. **Google ML Test Score** self-assessment (`docs/ml_test_score.md`):
+  **4.5** (min of the four sections), every point backed by a named artifact.
+- README now has an **artifacts index** linking results/ADRs/governance docs.
 
 ## Next steps (in order)
-1. **[docs]** **Model card** (data, metrics, calibration/limits, drift behavior) +
-   **Google ML Test Score** self-assessment in the README.
-2. **[Phase 5]** Cloud deploy notes (AWS ECS/Fargate + S3) + **edge quantization**
-   with measured size/latency reduction.
-3. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh in
-   the README.
-4. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
+1. **[Phase 5]** **Edge quantization** of the model with measured size/latency
+   reduction + cloud-vs-edge note; AWS deploy notes (ECS/Fargate + S3).
+2. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh.
+3. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
    fleet data for scale.
 
 ## How to resume
