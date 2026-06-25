@@ -41,20 +41,23 @@ threshold, cost = optimal_threshold(y_true, y_score, model)     # ROI-optimal cu
 
 ## Requirement → project traceability (curated to the Telular ML Engineer role)
 
-| Posting requirement | How GridSentinel delivers it |
-|---|---|
-| Supervised learning | Failure classification + RUL regression (RandomForest / XGBoost baselines) |
-| Unsupervised learning | Anomaly detection (Isolation Forest / autoencoder) + health clustering + PCA/UMAP |
-| Deep learning | LSTM / Temporal-CNN sequence RUL, vs the GBM baseline |
-| Feature pipelines + training workflows | Reproducible pipeline + Feast feature store |
-| Productionize (not prototypes) | FastAPI service, containerized, deployed live on AWS, versioned |
-| MLOps lifecycle | MLflow registry, GitHub Actions CI/CD with metric gates, Prometheus + Grafana, Evidently drift → retrain |
-| Cloud + ML services | AWS ECS/Fargate + S3 (SageMaker stretch) |
-| Drift detection & iteration | Evidently monitors on a live feed → automated retrain → canary → promote → rollback |
-| Measurable customer ROI | Decision threshold tuned to a $ cost function; headline lift vs schedule-based upkeep |
-| Security / compliance | Secret management, dependency + image scanning in CI, model-governance audit trail |
-| _Bonus:_ Edge ML | Quantize → ONNX, with measured size/latency reduction |
-| _Bonus:_ Agentic AI / RAG | Optional Phase 6: LLM agent + RAG over UPS manuals → maintenance work-order |
+✅ built · ◑ partial · ○ planned. The point is the proof column — each is openable.
+
+| Posting requirement | | Proof artifact |
+|---|---|---|
+| Supervised learning | ✅ | RF / XGBoost detectors, temporal CV, cost-tuned threshold — `pipelines/train_baseline.py`, [results](docs/phase1_baseline_results.md) |
+| Unsupervised learning | ✅ | Isolation-Forest anomaly detection (ROC-AUC 0.95) — `pipelines/anomaly.py`, [results](docs/phase2_anomaly_results.md) |
+| Deep learning | ○ | Sequence models (LSTM/TCN) are future work — gated on more failures (Backblaze) |
+| Feature pipelines + data validation | ✅ | Windowed pipeline + pandera schema, train/serve-shared aggregation — `pipelines/features.py`, `pipelines/metropt3_schema.py` |
+| Productionize (not prototypes) | ✅ | Schema-validated FastAPI + Docker + model registry — `serving/`, [ADR-0003](docs/adr/0003-serving-and-registry-stack.md) |
+| MLOps lifecycle | ✅ | CI metric gate, Prometheus + Grafana, drift → retrain → promote, registry + rollback + audit — `pipelines/metric_gate.py`, `monitoring/`, `serving/registry.py` |
+| Cloud + ML services | ◑ | AWS ECS/Fargate task def + deploy/cost notes (not live-deployed) — `infra/aws/` |
+| Drift detection & iteration | ✅ | PSI/KS on the **live EIA feed** → self-heal promote/rollback — `monitoring/drift.py`, `monitoring/self_heal.py` |
+| Measurable customer ROI | ✅ | Asymmetric cost model + tuned threshold (~30–60% vs schedule) — `src/gridsentinel/cost.py` |
+| Security / compliance | ✅ | SSM secrets, pip-audit + Trivy in CI, model-governance audit trail — `.github/workflows/`, `serving/registry.py` |
+| SWE rigor (tests) | ✅ | 106 tests + [Google ML Test Score 4.5](docs/ml_test_score.md), green CI |
+| _Bonus:_ Edge ML | ✅ | Measured size/latency/accuracy tradeoff (5.9× smaller, 4× faster) — [edge benchmark](docs/edge_benchmark.md) |
+| _Bonus:_ Agentic AI / RAG | ○ | Optional Phase 6: LLM agent + RAG over UPS manuals → work-order |
 
 ## Repository layout
 
