@@ -47,6 +47,7 @@ threshold, cost = optimal_threshold(y_true, y_score, model)     # ROI-optimal cu
 |---|---|---|
 | Supervised learning | ✅ | RF / XGBoost detectors, temporal CV, cost-tuned threshold — `pipelines/train_baseline.py`, [results](docs/phase1_baseline_results.md) |
 | Unsupervised learning | ✅ | Isolation-Forest anomaly detection (ROC-AUC 0.95) — `pipelines/anomaly.py`, [results](docs/phase2_anomaly_results.md) |
+| Fleet-scale failure data | ✅ | **Backblaze** reliability model — 418k drives, **24k real failures**, censoring-safe — `pipelines/backblaze.py`, [results](docs/backblaze_results.md) |
 | Deep learning | ✅ | Real **LSTM** (TensorFlow) + MLP sequence baseline, same temporal CV — `pipelines/lstm_model.py`, [results](docs/lstm_results.md). Honest finding: the LSTM underperforms (ROC-AUC 0.63) — too few failures to fit it; confirms data, not model class, is the bottleneck |
 | Feature pipelines + data validation | ✅ | Windowed pipeline + pandera schema, train/serve-shared aggregation — `pipelines/features.py`, `pipelines/metropt3_schema.py` |
 | Productionize (not prototypes) | ✅ | Schema-validated FastAPI + Docker + model registry — `serving/`, [ADR-0003](docs/adr/0003-serving-and-registry-stack.md) |

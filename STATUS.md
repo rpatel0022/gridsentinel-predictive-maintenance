@@ -165,10 +165,18 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   models — too few failures to fit a recurrent net. Confirms the bottleneck is data,
   not model class. ([results](docs/lstm_results.md))
 
+- **Backblaze fleet-reliability model** (`pipelines/backblaze.py`, `make backblaze`):
+  **UNBLOCKED via a GitHub mirror** (Backblaze/Kaggle hosts blocked, but the lifetime
+  CSV is committed in a reachable GitHub repo — pulled it directly, zero user download).
+  418k drives, **24k real failures**, 161 models. Censoring-safe cohort (predict
+  failure within 1y of a reference time using only features known then). **RandomForest
+  ROC-AUC 0.730** (beats the model-reliability prior 0.678); recovers the infamous
+  `st3000dm001` 25% AFR as a sanity check. ([results](docs/backblaze_results.md))
+
 ## Next steps (blocked / follow-on — need a different environment)
-1. **[data]** Backblaze fleet dataset — still 403/JS-gated direct; **try alternatives**:
-   an allowlisted mirror, or the user dropping the CSV in Google Drive (MCP) for me to
-   read. The single highest-leverage unblock (gives the LSTM enough failures to matter).
+1. **[data]** Backblaze **SMART-telemetry** at scale (daily sensor readings) — still
+   needs the ~1GB direct download; the lifetime data above covers the fleet story
+   without it, so this is optional.
 3. **[blocked]** Optional Phase 6 GenAI/RAG bridge — re-probed: no LLM key /
    anthropic SDK in-sandbox, so the generation half isn't feasible; skipped rather
    than shipping retrieval-only scaffolding.

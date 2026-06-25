@@ -35,6 +35,13 @@ anomaly:  ## Train + evaluate the anomaly detector (MLflow)
 lstm:  ## Train + evaluate the LSTM sequence model (needs the dl extra)
 	python -m pipelines.lstm_model "$(DATA)"
 
+backblaze-data:  ## Fetch the Backblaze fleet lifetime CSV (from a GitHub mirror)
+	mkdir -p data && curl -sSL -o data/backblaze_drive_dates.csv \
+	  https://raw.githubusercontent.com/zachmayer/backblaze_analysis/master/results/drive_dates.csv
+
+backblaze: backblaze-data  ## Fleet-reliability model on 418k drives / 24k failures
+	python -m pipelines.backblaze data/backblaze_drive_dates.csv
+
 gate:  ## Run the metric gate on the real data
 	python -m pipelines.metric_gate --csv "$(DATA)"
 
