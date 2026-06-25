@@ -3,12 +3,17 @@
 _Last updated: 2026-06-24. This file lets any new session pick up exactly where we
 left off. Start here, then read `PLAN.md`._
 
+> **Session paused (user's 5-hour window).** Phases 0–5 built & tested end-to-end
+> (117 tests, CI-green). `make help` lists one-command workflows. Remaining items are
+> environment-blocked (Backblaze data access; PyTorch/DL framework) or optional.
+
 ## One-line summary
-Building **GridSentinel** — a production-grade predictive-maintenance ML system —
-as a portfolio project to land the AMETEK Telular ML Engineer role. Foundation +
-validated real data + live EIA feed + **Phase 1 supervised baseline** + **Phase 2
-anomaly detector** + **Phase 3 FastAPI serving service (Dockerized)** are in; next
-is the CI metric gate + registry rollback, then observability.
+**GridSentinel** — a production-grade predictive-maintenance ML system, built as a
+portfolio project to land the AMETEK Telular ML Engineer role. Phases 0–5 (data
+validation → supervised + anomaly + neural models → cost-tuned serving → CI gate →
+observability → self-healing retrain/rollback → edge/load benchmarks) are built and
+tested end-to-end; remaining items (Backblaze fleet data, real LSTM/TCN) are blocked
+by the sandbox environment, not by design.
 
 ## Decisions locked (see `docs/adr/0001-dataset-feed-and-cloud.md`)
 - **Dataset:** MetroPT-3 (primary) + Backblaze (fleet-scale companion, Phase 2)
