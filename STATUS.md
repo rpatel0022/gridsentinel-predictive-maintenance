@@ -80,15 +80,17 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   tier observability — *model* metrics (prediction/alert counts, anomaly-score
   distribution = the leading indicators, since labels lag) + *system* metrics
   (per-endpoint latency, validation-error count). Verified live on real data.
+- **Drift detection** (`monitoring/drift.py`): PSI + two-sample KS, overall verdict.
+  Dependency-light, deterministic, tested. `monitoring/eia_drift.py` runs it on the
+  **live EIA feed** — verified real seasonal drift (PJM winter vs now: PSI 0.46,
+  KS p 0.009, drift detected). This is the retrain-trigger signal.
 
 ## Next steps (in order)
-1. **[Phase 4]** **Evidently** drift report on the live EIA feed (feature/prediction
-   drift) → a drift signal that can trigger retraining.
-2. **[Phase 4]** **Grafana** dashboards + Prometheus scrape in docker-compose.
-3. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
-   runbook.
-4. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
-5. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+1. **[Phase 4]** **Grafana** dashboards + Prometheus scrape wired into docker-compose.
+2. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
+   a one-page runbook. Delayed-label backfill job.
+3. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
+4. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
