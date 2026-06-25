@@ -154,6 +154,11 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   without rebuilding — closes the edge-benchmark caveat (edge stage runs a lower
   threshold than cloud). Pure logic unit-tested + joblib round-trip.
 
+- **Operational status CLI** (`serving/status.py`, `make status`): one command shows
+  the live production model, its metrics, the in-force threshold, transition counts,
+  and the recent audit trail — ties registry + self-heal together for on-call. Pure
+  report core unit-tested; wired into the runbook.
+
 ## Next steps (blocked / follow-on — need a different environment)
 1. **[data]** Backblaze fleet dataset — re-probed: still 403/JS-gated in-sandbox;
    deferred (not faked — the 100%-real-data rule). Needs data access.

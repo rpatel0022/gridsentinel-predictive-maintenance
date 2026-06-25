@@ -42,6 +42,20 @@ ModelRegistry("models/registry").rollback("incident-<id>")  # restores the prior
 Then confirm `/health` reports the restored `model_version` and the latency/alert
 panels recover. Record the incident in the audit trail (the rollback is logged).
 
+## Check live state
+
+```bash
+python -m serving.status              # production model, its metrics, threshold, recent audit
+```
+
+To tune an alert threshold without a redeploy (e.g. raise recall on a noisy feed),
+set a per-stage override — it's audit-logged and applied on next model load:
+
+```python
+from serving.registry import ModelRegistry
+ModelRegistry("models/registry").set_threshold("production", 0.012, "incident-<id>")
+```
+
 ## Escalation
 
 If drift is real *and* a fresh retrain can't clear the gate, the data has shifted

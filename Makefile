@@ -47,6 +47,9 @@ serve: artifact  ## Build the artifact and run the API locally
 loadtest:  ## Load-test the serving API (needs models/ built)
 	python -m serving.load_test
 
+status:  ## Operational status: live model, thresholds, audit trail
+	python -m serving.status
+
 drift:  ## Drift on the live EIA feed (needs EIA_API_KEY)
 	python -m monitoring.eia_drift --ref-start 2026-01-08T00 --ref-end 2026-01-15T00
 
