@@ -49,7 +49,7 @@ from pipelines.labels import DROP, make_labels
 
 # Asymmetric maintenance costs, in dollars. Illustrative but ordered correctly: a
 # missed failure (emergency truck-roll + downtime) dwarfs a false alarm (a wasted
-# inspection). Refine with IntelliPower's real numbers before quoting externally.
+# inspection). Replace with real operational numbers before quoting externally.
 COST = CostModel(cost_fn=3000.0, cost_fp=200.0, cost_tp=200.0)
 
 # Candidate fixed-maintenance intervals (in windows) for the dumb baseline. With

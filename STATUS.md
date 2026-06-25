@@ -21,9 +21,9 @@ detection on a genuinely live data feed, and a self-healing retrain→gate→pro
 loop. It is built on **100% real data** (no synthetic numbers anywhere) and is graded on
 **dollars saved, not raw accuracy**, because a missed failure costs ~100× a false alarm.
 
-**Why it exists:** a portfolio piece engineered to map 1:1 onto the AMETEK / Telular
-**ML Engineer** job posting — every line item in that posting has an openable proof
-artifact in this repo (see the traceability table in `README.md`).
+**Why it exists:** a portfolio system that demonstrates production ML + MLOps end-to-end
+for an IoT predictive-maintenance problem — every ML capability it claims has an openable
+proof artifact in the repo (see the traceability table in `README.md`).
 
 **The single most important design idea:** the decision threshold is tuned to **minimize
 expected dollar cost** under an asymmetric cost model, and every result is reported as

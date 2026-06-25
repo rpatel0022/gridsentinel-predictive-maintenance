@@ -6,7 +6,7 @@
   mean/std/min/max + per-digital duty fraction), standardized. `serving/model.py`.
 - **Version scheme:** `iforest-<UTC timestamp>`; the live version is in the registry
   `production` stage and surfaced at `/health`.
-- **Owner / date:** Rushi Patel, 2026-06. Built as a portfolio system.
+- **Date:** 2026-06. Built as a portfolio system.
 - **Companion model:** a supervised XGBoost detector (`pipelines/train_baseline.py`)
   kept for precise, labelled-signature detection.
 

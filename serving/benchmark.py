@@ -1,7 +1,8 @@
 """Latency / size / accuracy benchmark — the cloud-vs-edge tradeoff with numbers.
 
-Telular ships edge devices, so "export to ONNX" isn't enough; the question is what
-a *smaller, faster* model costs in accuracy. Isolation Forests don't int8-quantize
+IoT fleets often run inference on edge devices, so "export to ONNX" isn't enough; the
+question is what a *smaller, faster* model costs in accuracy. Isolation Forests don't
+int8-quantize
 like neural nets, but the analogous lever is the **ensemble size**: fewer trees → a
 smaller artifact and lower inference latency, at some cost to score stability. This
 benchmarks that lever on the real data so the tradeoff is measured, not asserted.
