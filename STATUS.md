@@ -91,14 +91,19 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   candidate), **promote + rollback**, and an **audit trail** (governance). Pure
   stage logic unit-tested in lean CI + a joblib round-trip. (Covers the Phase 3
   registry/rollback item; the self-heal loop promotes through it.)
+- **Self-heal orchestrator** (`monitoring/self_heal.py`): drift → retrain candidate
+  → metric-gate → promote **only if** it clears the gate and doesn't regress vs
+  production, else keep current. Pure decision unit-tested; **demoed end-to-end on
+  real data** (register → promote → audit). On-call **runbook** at `docs/runbook.md`
+  (alert thresholds + retrain/rollback procedures). *Phase 4 self-healing loop done.*
 
 ## Next steps (in order)
-1. **[Phase 4]** **Self-heal orchestrator**: drift → retrain candidate → metric-gate
-   → promote (or keep current) through the registry; alert thresholds + a one-page
-   runbook. Delayed-label backfill job.
-2. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
-3. **[Phase 5]** Cloud deploy (AWS) + edge quantization; ADRs, model card, ML Test
-   Score, README ROI headline.
+1. **[Phase 5]** Cloud deploy notes (AWS ECS/Fargate + S3) + **edge quantization**
+   with measured size/latency reduction.
+2. **[Phase 5/docs]** ADRs for the real forks, **model card**, **ML Test Score**,
+   and the quantified ROI headline in the README.
+3. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
+   fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
