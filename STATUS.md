@@ -130,14 +130,21 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   **p99 31 ms (< 50 ms SLO)**. Found + fixed `n_jobs=-1` thread oversubscription, and
   documented the GIL-bound ~40 rps/process → horizontal-scaling capacity model.
 
+- **Architecture doc refreshed** (`docs/architecture.md`) to the **built** system
+  (✅/◑/○ markers) — accurate models, in-house drift, file registry, edge benchmark,
+  backfill, CI gate/SLO.
+
 ## Next steps (larger, follow-on)
-1. **[ML]** Sequence models (LSTM/TCN) — gated on more failures; heavier deps.
-2. **[data]** Backblaze fleet dataset — fixes label scarcity but a whole new
-   ingestion pipeline + large download.
+1. **[data]** Backblaze fleet dataset — **probed this session: the download is
+   403/JS-gated and not cleanly fetchable in-sandbox.** Deferred rather than faked
+   (no pipeline against unvalidated data — the 100%-real-data rule). Needs an
+   environment with data access.
+2. **[ML]** Sequence models (LSTM/TCN) — gated on more failures; heavier deps.
 3. **[polish]** Per-stage thresholds in the registry; optional Phase 6 GenAI/RAG.
 
-> Phases 0–5 are built and tested end-to-end (107 tests). The remaining items are
-> larger follow-on efforts rather than quick wins.
+> Phases 0–5 are built and tested end-to-end (108 tests). Remaining items are larger
+> follow-on efforts (Backblaze needs data access; LSTM is label-limited), not quick
+> wins — the core system is complete.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).
