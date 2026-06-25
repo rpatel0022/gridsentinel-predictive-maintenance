@@ -115,10 +115,16 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   labels and logs true precision/recall/ROC-AUC (JSONL history). Honest handling of
   lagging labels — pure core unit-tested.
 
+- **AWS deploy notes** (`infra/aws/`): Fargate `task-definition.json` (port 8000,
+  `/health` check, `EIA_API_KEY` via SSM secret, CloudWatch logs) + a deploy guide
+  (ECR/ECS/S3 model bundle, never-in-git) + a **cost note** (~$35–40/mo, ~$18 scaled
+  down). Validated by tests (structure + no-leaked-secret). Documented target, not
+  applied from the repo.
+
 ## Next steps (in order)
-1. **[Phase 5]** AWS deploy notes (ECS/Fargate + S3) + a short cost note.
-2. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh.
-3. **[later]** Per-stage thresholds in the registry; sequence models (LSTM/TCN) +
+1. **[docs]** Requirement-traceability refresh in the README (map each posting
+   requirement → the now-built artifact) + tighten the ROI framing.
+2. **[later]** Per-stage thresholds in the registry; sequence models (LSTM/TCN) +
    Backblaze fleet data for scale.
 
 ## How to resume

@@ -1,0 +1,39 @@
+{
+  "family": "gridsentinel-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/gridsentinel-execution-role",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/gridsentinel-task-role",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/gridsentinel:latest",
+      "essential": true,
+      "portMappings": [{ "containerPort": 8000, "protocol": "tcp" }],
+      "environment": [{ "name": "MODEL_PATH", "value": "/models/anomaly_detector.joblib" }],
+      "secrets": [
+        {
+          "name": "EIA_API_KEY",
+          "valueFrom": "arn:aws:ssm:<REGION>:<ACCOUNT_ID>:parameter/gridsentinel/EIA_API_KEY"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)\""],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/gridsentinel-api",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "api"
+        }
+      }
+    }
+  ]
+}
