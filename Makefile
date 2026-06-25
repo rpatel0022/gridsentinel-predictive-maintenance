@@ -50,6 +50,9 @@ loadtest:  ## Load-test the serving API (needs models/ built)
 status:  ## Operational status: live model, thresholds, audit trail
 	python -m serving.status
 
+selfheal:  ## Run one retrain -> gate -> promote/keep cycle
+	python -m monitoring.self_heal "$(DATA)"
+
 drift:  ## Drift on the live EIA feed (needs EIA_API_KEY)
 	python -m monitoring.eia_drift --ref-start 2026-01-08T00 --ref-end 2026-01-15T00
 

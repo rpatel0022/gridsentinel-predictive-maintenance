@@ -91,3 +91,36 @@ def run(csv_path: str, registry_root: str, at: str, *, key: str = PROMOTE_KEY) -
         "previous_production": prod_version,
         "production_now": reg.stage_version(PRODUCTION),
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI: run one drift-triggered retrain → gate → promote cycle.
+
+    Exit code is 0 whether or not the candidate is promoted (keeping the current
+    model is a valid outcome); it is non-zero only on an error.
+    """
+    import argparse
+    import datetime as dt
+
+    parser = argparse.ArgumentParser(description="GridSentinel self-heal retrain cycle")
+    parser.add_argument("csv", help="path to the training dataset")
+    parser.add_argument("--registry", default="models/registry", help="registry root dir")
+    parser.add_argument("--at", default=None, help="ISO timestamp for the audit log")
+    args = parser.parse_args(argv)
+
+    at = args.at or dt.datetime.now(dt.timezone.utc).isoformat()
+    result = run(args.csv, args.registry, at)
+    verb = "PROMOTED" if result["promote"] else "KEPT current"
+    print(f"{verb}: {result['reason']}")
+    print(
+        f"  candidate={result['candidate_version']} "
+        f"production_now={result['production_now']} "
+        f"(was {result['previous_production']})"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

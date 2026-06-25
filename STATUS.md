@@ -164,7 +164,13 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
    deferred (not faked — the 100%-real-data rule). Needs data access.
 2. **[ML]** True LSTM/TCN — re-probed: PyTorch CPU index still proxy-blocked; needs a
    DL framework.
-3. **[polish]** Optional Phase 6 GenAI/RAG bridge (needs an LLM key).
+3. **[blocked]** Optional Phase 6 GenAI/RAG bridge — re-probed: no LLM key /
+   anthropic SDK in-sandbox, so the generation half isn't feasible; skipped rather
+   than shipping retrieval-only scaffolding.
+
+**Runnable jobs/CLIs:** `serving.build_artifact`, `pipelines.{data_quality,
+train_baseline,anomaly,metric_gate,sequence_model}`, `serving.{benchmark,load_test,
+status}`, `monitoring.{eia_drift,self_heal}` — all wired into the `Makefile`.
 
 > **Core system (Phases 0–5) is complete and tested (113 tests).** The two biggest
 > remaining items (Backblaze, real LSTM) are both blocked by the sandbox environment

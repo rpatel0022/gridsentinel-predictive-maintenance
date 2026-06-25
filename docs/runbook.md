@@ -21,11 +21,10 @@ and backfill true performance when labels arrive (the delayed-label backfill job
 
 ## Retrain → promote (self-healing)
 
-The loop is automated (`monitoring/self_heal.run`) but runnable by hand:
+The loop is automated but runnable by hand:
 
 ```bash
-python -c "from monitoring.self_heal import run; \
-  print(run('MetroPT3(AirCompressor).csv', 'models/registry', 'manual-$(date -u +%FT%TZ)'))"
+python -m monitoring.self_heal "MetroPT3(AirCompressor).csv"   # or: make selfheal
 ```
 
 It retrains a **candidate**, runs the metric gate, and promotes it **only if** it
