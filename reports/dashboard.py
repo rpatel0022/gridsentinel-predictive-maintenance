@@ -73,7 +73,7 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
     fig.text(
         0.06,
         0.915,
-        "Production predictive-maintenance & fleet-reliability ML system  ·  2 real datasets  ·  full MLOps  ·  140 tests green",
+        "Production predictive-maintenance & fleet-reliability ML system  ·  2 real datasets  ·  full MLOps  ·  143 tests green",
         fontsize=12.5,
         color=GREY,
     )
@@ -207,18 +207,39 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
     return out
 
 
-def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, return_fig=False):
-    """Interactive Plotly dashboard. Returns the figure if ``return_fig`` else writes ``out``."""
+def _load_from_assets(assets_dir: str = "reports/assets"):
+    """Load the committed real-data assets (the precompute step's output) so the
+    interactive board can be rebuilt without the raw 1.5M-row dataset."""
+    import json
+    import os
+    from types import SimpleNamespace
+
+    tl = pd.read_csv(os.path.join(assets_dir, "anomaly_timeline.csv"), parse_dates=["ts"])
+    with open(os.path.join(assets_dir, "summary.json")) as fh:
+        s = json.load(fh)
+    afr = pd.read_csv(os.path.join(assets_dir, "afr.csv")).head(6)
+    events = [
+        SimpleNamespace(start=pd.to_datetime(f["start"]), end=pd.to_datetime(f["end"]))
+        for f in s["failures"]
+    ]
+    return (
+        tl["ts"],
+        tl["score"].to_numpy(),
+        float(s["anomaly_threshold"]),
+        events,
+        s["model_auc"],
+        s["lead_times"],
+        afr["model"].tolist(),
+        afr["afr"].tolist(),
+    )
+
+
+def _build_figure(ts, scores, thr, events, model_auc, lead_times, afr_models, afrs):
+    """Assemble the interactive Plotly board from plain data (no I/O)."""
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
-    ts0, scores0, thr, events = _anomaly_timeline(metropt_csv)
-    # Downsample to hourly for a light, fast-loading interactive page.
-    tl = pd.DataFrame({"ts": ts0, "s": scores0}).set_index("ts").resample("1h").mean().dropna()
-    ts, scores = tl.index, tl["s"].to_numpy()
     smooth = pd.Series(scores).rolling(12, center=True, min_periods=1).mean()
-    models_afr, afrs = _afr(backblaze_csv)
-
     fig = make_subplots(
         rows=3,
         cols=3,
@@ -230,14 +251,14 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
         subplot_titles=(
             "Anomaly score on real compressor telemetry — rises into every real failure (amber)",
             "Model leaderboard (ROC-AUC)",
-            "Early warning before each failure (hours)",
-            "Backblaze fleet — worst models (annualized failure %)",
+            "Early warning (hours)",
+            "Backblaze: worst models (AFR %/yr)",
             "Cost vs fixed schedule",
             "What it does",
         ),
-        row_heights=[0.42, 0.3, 0.28],
-        vertical_spacing=0.1,
-        horizontal_spacing=0.08,
+        row_heights=[0.40, 0.30, 0.30],
+        vertical_spacing=0.12,
+        horizontal_spacing=0.10,
     )
     fig.add_trace(
         go.Scatter(
@@ -269,10 +290,10 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
             x0=ev.start, x1=ev.end, fillcolor=AMBER, opacity=0.5, line_width=0, row=1, col=1
         )
 
-    names = list(MODEL_AUC)[::-1]
+    names = list(model_auc)[::-1]
     fig.add_trace(
         go.Bar(
-            x=list(MODEL_AUC.values())[::-1],
+            x=list(model_auc.values())[::-1],
             y=[n.replace("\n", " ") for n in names],
             orientation="h",
             marker_color=TEAL,
@@ -282,10 +303,13 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
         row=2,
         col=1,
     )
+    # Early warning: force a categorical x-axis with readable labels. Passing the raw
+    # date strings let Plotly auto-parse them as datetimes and collapse the bars.
+    ew_labels = [pd.to_datetime(d).strftime("%b %d") for d in lead_times]
     fig.add_trace(
         go.Bar(
-            x=[d[5:] for d in LEAD_TIMES],
-            y=list(LEAD_TIMES.values()),
+            x=ew_labels,
+            y=list(lead_times.values()),
             marker_color=NAVY,
             hovertemplate="%{x}: %{y}h warning<extra></extra>",
             showlegend=False,
@@ -296,7 +320,7 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
     fig.add_trace(
         go.Bar(
             x=[a * 100 for a in afrs],
-            y=models_afr,
+            y=afr_models,
             orientation="h",
             marker_color=RED,
             hovertemplate="%{y}: %{x:.1f}% AFR<extra></extra>",
@@ -330,7 +354,7 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
         ("Edge", "quantized 5.9× smaller / 4× faster · cloud-vs-edge tradeoff measured"),
         (
             "Rigor",
-            "temporal CV (no leakage) · cost-tuned thresholds · ML Test Score 4.5 · 140 tests",
+            "temporal CV (no leakage) · cost-tuned thresholds · ML Test Score 4.5 · 143 tests",
         ),
     ]
     fig.add_trace(
@@ -342,22 +366,56 @@ def build_html(metropt_csv: str, backblaze_csv: str, out, *, plotlyjs=True, retu
                 align="left",
             ),
             cells=dict(
-                values=[[c[0] for c in caps], [c[1] for c in caps]], align="left", height=26
+                values=[[c[0] for c in caps], [c[1] for c in caps]], align="left", height=28
             ),
+            columnwidth=[1, 4],
         ),
         row=3,
         col=2,
     )
+
+    # Axis labels + the categorical fix for the early-warning bars.
+    fig.update_xaxes(type="category", row=2, col=2)
+    fig.update_yaxes(title_text="anomaly score (↑ = more anomalous)", row=1, col=1)
+    fig.update_yaxes(title_text="hours", row=2, col=2)
+    fig.update_xaxes(title_text="% per year", row=2, col=3)
+    fig.update_yaxes(title_text="relative cost", row=3, col=1)
 
     fig.update_layout(
         title=dict(
             text="<b>GridSentinel</b> — production predictive-maintenance & fleet-reliability ML",
             font=dict(size=22, color=NAVY),
         ),
-        height=1000,
+        height=1180,
         template="plotly_white",
-        margin=dict(t=90, l=60, r=40, b=40),
+        margin=dict(t=90, l=70, r=50, b=50),
+        font=dict(size=12),
     )
+    for ann in fig.layout.annotations:  # smaller subplot titles so they don't collide
+        ann.font.size = 13
+    return fig
+
+
+def build_html(
+    metropt_csv=None,
+    backblaze_csv=None,
+    out=None,
+    *,
+    plotlyjs=True,
+    return_fig=False,
+    assets_dir=None,
+):
+    """Interactive Plotly dashboard. Reads the committed assets by default (fast,
+    reproducible); pass ``metropt_csv``/``backblaze_csv`` to recompute from raw data.
+    Returns the figure if ``return_fig`` else writes ``out``."""
+    if metropt_csv is None or assets_dir is not None:
+        data = _load_from_assets(assets_dir or "reports/assets")
+    else:
+        ts0, scores0, thr, events = _anomaly_timeline(metropt_csv)
+        tl = pd.DataFrame({"ts": ts0, "s": scores0}).set_index("ts").resample("1h").mean().dropna()
+        models_afr, afrs = _afr(backblaze_csv)
+        data = (tl.index, tl["s"].to_numpy(), thr, events, MODEL_AUC, LEAD_TIMES, models_afr, afrs)
+    fig = _build_figure(*data)
     if return_fig:
         return fig
     fig.write_html(out, include_plotlyjs=plotlyjs, full_html=True)
@@ -390,14 +448,21 @@ _SITE_TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 
 
 def build_site(
-    metropt_csv: str, backblaze_csv: str, out_dir: str, *, repo: str, branch: str
+    metropt_csv=None,
+    backblaze_csv=None,
+    out_dir="site",
+    *,
+    repo: str,
+    branch: str,
+    assets_dir: str = "reports/assets",
 ) -> str:
-    """Build a self-contained GitHub-Pages portfolio site (interactive board + header)."""
+    """Build a self-contained GitHub-Pages portfolio site (interactive board + header).
+    Sourced from the committed assets so it rebuilds without the raw dataset."""
     import os
     import shutil
 
-    fig = build_html(metropt_csv, backblaze_csv, None, return_fig=True)
-    fig.update_layout(title=None, margin=dict(t=40, l=60, r=40, b=40))
+    fig = build_html(assets_dir=assets_dir, return_fig=True)
+    fig.update_layout(title=None, margin=dict(t=40, l=70, r=50, b=50))
     chart = fig.to_html(full_html=False, include_plotlyjs="cdn")
     os.makedirs(out_dir, exist_ok=True)
     index = os.path.join(out_dir, "index.html")
@@ -413,19 +478,23 @@ REPO = "https://github.com/rpatel0022/gridsentinel-predictive-maintenance"
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Build the GridSentinel results dashboard")
-    p.add_argument("--metropt", required=True)
-    p.add_argument("--backblaze", required=True)
+    # --metropt/--backblaze are only needed for png/html (which recompute from raw data);
+    # `pages` builds from the committed assets, so they're optional.
+    p.add_argument("--metropt")
+    p.add_argument("--backblaze")
     p.add_argument("--out", default="docs/dashboard.png")
     p.add_argument("--format", choices=["png", "html", "both", "pages"], default="png")
     p.add_argument("--repo", default=REPO)
     p.add_argument("--branch", default="main")
     a = p.parse_args(argv)
     if a.format in ("png", "both"):
+        if not a.metropt or not a.backblaze:
+            p.error("--metropt and --backblaze are required for the png format")
         print("wrote", build(a.metropt, a.backblaze, a.out.replace(".html", ".png")))
     if a.format in ("html", "both"):
         print("wrote", build_html(a.metropt, a.backblaze, a.out.replace(".png", ".html")))
     if a.format == "pages":
-        print("wrote", build_site(a.metropt, a.backblaze, "site", repo=a.repo, branch=a.branch))
+        print("wrote", build_site(repo=a.repo, branch=a.branch))
     return 0
 
 
