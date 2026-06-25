@@ -75,11 +75,20 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   0.95/0.39/0.89 vs floors 0.90/0.30/0.75). Adds **pip-audit** dependency scan (CI)
   + **Trivy** image scan (model-eval).
 
+## Phase 4 in progress 🔵 (autonomous loop)
+- **Prometheus instrumentation** (`serving/metrics.py` + `/metrics` endpoint): two-
+  tier observability — *model* metrics (prediction/alert counts, anomaly-score
+  distribution = the leading indicators, since labels lag) + *system* metrics
+  (per-endpoint latency, validation-error count). Verified live on real data.
+
 ## Next steps (in order)
-1. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
-2. **[Phase 4]** Observability: Prometheus + Grafana (system + model metrics),
-   Evidently drift on the live EIA feed → retrain trigger. *The self-healing headline.*
-3. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+1. **[Phase 4]** **Evidently** drift report on the live EIA feed (feature/prediction
+   drift) → a drift signal that can trigger retraining.
+2. **[Phase 4]** **Grafana** dashboards + Prometheus scrape in docker-compose.
+3. **[Phase 4]** Drift → **automated retrain → canary/promote**, alert thresholds +
+   runbook.
+4. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
+5. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).

@@ -6,9 +6,12 @@ anomaly detector behind a schema-validated HTTP API.
 ## Layout
 
 - `app.py` — FastAPI app. `POST /predict` (a window of raw readings → anomaly score
-  + alert), `GET /health`, `GET /`. Every reading is validated against the same
-  physical contract as the training data (`pipelines/metropt3_schema.py`), so bad
-  telemetry is rejected with HTTP 422.
+  + alert), `GET /health`, `GET /`, `GET /metrics` (Prometheus). Every reading is
+  validated against the same physical contract as the training data
+  (`pipelines/metropt3_schema.py`), so bad telemetry is rejected with HTTP 422.
+- `metrics.py` — two-tier Prometheus collectors: *model* metrics (prediction count,
+  alert rate, anomaly-score distribution — the leading indicators a drift monitor
+  watches) and *system* metrics (per-endpoint latency, validation-error count).
 - `model.py` — framework-free scoring core + the `ModelBundle` (pipeline +
   threshold + feature order + provenance) and its save/load. Swapping models is a
   one-file change; the service code never moves.

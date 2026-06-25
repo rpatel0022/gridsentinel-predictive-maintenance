@@ -119,3 +119,38 @@ def test_predict_window_core(bundle):
     out = predict_window(bundle, pd.DataFrame(_window(level=5.0, n=4)))
     assert out["n_samples"] == 4 and out["model_version"] == "test-v1"
     assert isinstance(out["alert"], bool)
+
+
+def test_metrics_endpoint_exposes_prometheus(client):
+    body = client.get("/metrics").text
+    assert "gridsentinel_predictions_total" in body
+    assert "gridsentinel_anomaly_score" in body
+
+
+def test_prediction_increments_metric(client):
+    from serving.metrics import PREDICTIONS
+
+    before = sum(
+        s.value
+        for m in PREDICTIONS.collect()
+        for s in m.samples
+        if s.name == "gridsentinel_predictions_total"
+    )
+    client.post("/predict", json={"readings": _window(level=5.0, n=6)})
+    after = sum(
+        s.value
+        for m in PREDICTIONS.collect()
+        for s in m.samples
+        if s.name == "gridsentinel_predictions_total"
+    )
+    assert after == before + 1
+
+
+def test_validation_error_counted(client):
+    from serving.metrics import VALIDATION_ERRORS
+
+    before = VALIDATION_ERRORS._value.get()
+    bad = _reading()
+    bad["TP2"] = 999.0
+    client.post("/predict", json={"readings": [bad]})
+    assert VALIDATION_ERRORS._value.get() == before + 1

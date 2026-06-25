@@ -14,11 +14,17 @@ Run locally::
 
 from __future__ import annotations
 
+import time
+
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from pipelines.metropt3_schema import ANALOG_RANGES, ANALOG_SENSORS, DIGITAL_SIGNALS
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field, model_validator
 
+from serving import metrics
 from serving.model import ModelBundle, load_bundle, predict_window
 
 
@@ -79,6 +85,20 @@ def create_app(bundle: ModelBundle | None = None) -> FastAPI:
     app = FastAPI(title="GridSentinel", version="0.1.0")
     app.state.bundle = bundle
 
+    @app.middleware("http")
+    async def _latency(request: Request, call_next):
+        start = time.perf_counter()
+        response = await call_next(request)
+        metrics.REQUEST_LATENCY.labels(endpoint=request.url.path).observe(
+            time.perf_counter() - start
+        )
+        return response
+
+    @app.exception_handler(RequestValidationError)
+    async def _count_validation_errors(request: Request, exc: RequestValidationError):
+        metrics.VALIDATION_ERRORS.inc()
+        return await request_validation_exception_handler(request, exc)
+
     def get_bundle() -> ModelBundle:
         if app.state.bundle is None:
             try:
@@ -107,7 +127,12 @@ def create_app(bundle: ModelBundle | None = None) -> FastAPI:
         bundle = get_bundle()
         readings = pd.DataFrame([r.model_dump() for r in req.readings])
         result = predict_window(bundle, readings)
+        metrics.record_prediction(result["anomaly_score"], result["alert"])
         return PredictResponse(**result)
+
+    @app.get("/metrics")
+    def prometheus_metrics() -> Response:
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     return app
 
