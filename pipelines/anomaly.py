@@ -47,9 +47,13 @@ def normal_training_mask(
     return (ts < first_failure).to_numpy()
 
 
-def build_detector(contamination: float = 0.02, random_state: int = 42) -> Pipeline:
+def build_detector(
+    contamination: float = 0.02, random_state: int = 42, n_estimators: int = 300
+) -> Pipeline:
     """Standardise then Isolation-Forest. ``contamination`` only sets the alert
     offset for ``predict``; the anomaly *ranking* (``score_samples``) is unaffected.
+    ``n_estimators`` trades model size/latency against stability (see the edge
+    benchmark in ``docs/edge_benchmark.md``).
     """
     return Pipeline(
         [
@@ -57,7 +61,7 @@ def build_detector(contamination: float = 0.02, random_state: int = 42) -> Pipel
             (
                 "iforest",
                 IsolationForest(
-                    n_estimators=300,
+                    n_estimators=n_estimators,
                     contamination=contamination,
                     random_state=random_state,
                     n_jobs=-1,
@@ -113,6 +117,7 @@ def evaluate(
     contamination: float = 0.02,
     warn_hours: float = 2.0,
     normal_quantile: float = 0.99,
+    n_estimators: int = 300,
 ) -> dict:
     """Fit on the failure-free period, score the rest, evaluate vs real failures.
 
@@ -128,7 +133,7 @@ def evaluate(
     train_mask = normal_training_mask(feats[WINDOW_START])
     test_mask = ~train_mask
 
-    detector = build_detector(contamination=contamination)
+    detector = build_detector(contamination=contamination, n_estimators=n_estimators)
     detector.fit(X[train_mask])
     scores = anomaly_score(detector, X)
 

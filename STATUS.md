@@ -105,12 +105,16 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
   **4.5** (min of the four sections), every point backed by a named artifact.
 - README now has an **artifacts index** linking results/ADRs/governance docs.
 
+- **Edge benchmark** (`serving/benchmark.py` + `docs/edge_benchmark.md`): measured
+  size/latency/accuracy across ensemble sizes on real data. 300→50 trees = **5.9×
+  smaller, ~4× faster p99 (24→6 ms), same ROC-AUC (~0.95)**, recall cost 0.89→0.75.
+  Cloud-vs-edge recommendation included.
+
 ## Next steps (in order)
-1. **[Phase 5]** **Edge quantization** of the model with measured size/latency
-   reduction + cloud-vs-edge note; AWS deploy notes (ECS/Fargate + S3).
+1. **[Phase 5]** AWS deploy notes (ECS/Fargate + S3) + a short cost note.
 2. **[Phase 5/docs]** Quantified ROI headline + requirement-traceability refresh.
-3. **[later]** Delayed-label backfill job; sequence models (LSTM/TCN) + Backblaze
-   fleet data for scale.
+3. **[later]** Delayed-label backfill job; per-stage thresholds in the registry;
+   sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).

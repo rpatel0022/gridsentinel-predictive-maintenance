@@ -98,7 +98,8 @@ The artifact makes the claim — each of these is openable:
 
 - **Results:** [Phase 1 baseline](docs/phase1_baseline_results.md) ·
   [Phase 2 anomaly detection](docs/phase2_anomaly_results.md) ·
-  [data-quality spike](docs/data_quality_metropt3.md)
+  [data-quality spike](docs/data_quality_metropt3.md) ·
+  [edge benchmark](docs/edge_benchmark.md)
 - **Decisions (ADRs):** [0001 dataset/feed/cloud](docs/adr/0001-dataset-feed-and-cloud.md) ·
   [0002 anomaly-detection primary](docs/adr/0002-anomaly-detection-primary.md) ·
   [0003 serving + registry](docs/adr/0003-serving-and-registry-stack.md) ·
