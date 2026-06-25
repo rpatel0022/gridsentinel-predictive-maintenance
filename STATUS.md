@@ -168,9 +168,14 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
    anthropic SDK in-sandbox, so the generation half isn't feasible; skipped rather
    than shipping retrieval-only scaffolding.
 
+- **Drift-gated retrain** (`monitoring/drift_trigger.py`, `make retrain-if-drift`):
+  connects the drift monitor to the self-heal job — checks drift on the live EIA feed
+  and runs the retrain→gate→promote cycle **only when drift is detected**. The actual
+  "drift → retrain" loop, end-to-end. Pure gate unit-tested.
+
 **Runnable jobs/CLIs:** `serving.build_artifact`, `pipelines.{data_quality,
 train_baseline,anomaly,metric_gate,sequence_model}`, `serving.{benchmark,load_test,
-status}`, `monitoring.{eia_drift,self_heal}` — all wired into the `Makefile`.
+status}`, `monitoring.{eia_drift,self_heal,drift_trigger}` — all in the `Makefile`.
 
 > **Core system (Phases 0–5) is complete and tested (113 tests).** The two biggest
 > remaining items (Backblaze, real LSTM) are both blocked by the sandbox environment

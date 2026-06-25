@@ -53,6 +53,9 @@ status:  ## Operational status: live model, thresholds, audit trail
 selfheal:  ## Run one retrain -> gate -> promote/keep cycle
 	python -m monitoring.self_heal "$(DATA)"
 
+retrain-if-drift:  ## Retrain only if the live feed has drifted (needs EIA_API_KEY)
+	python -m monitoring.drift_trigger "$(DATA)" --ref-start 2026-01-08T00 --ref-end 2026-01-15T00
+
 drift:  ## Drift on the live EIA feed (needs EIA_API_KEY)
 	python -m monitoring.eia_drift --ref-start 2026-01-08T00 --ref-end 2026-01-15T00
 
