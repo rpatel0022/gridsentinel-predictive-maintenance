@@ -68,17 +68,18 @@ the EIA feed was smoke-tested with a live key. Nothing currently blocked.
 - **Model bundle** (`serving/model.py`): pipeline + threshold + feature order +
   provenance; save/load; framework-free scoring core. Train/serve features share
   one aggregation (`pipelines/features.aggregate_window`) — no feature skew.
-- **Docker**: `Dockerfile` (non-root, healthcheck) + `docker-compose.yml`; model
-  artifact mounted, never baked in. Smoke-tested live on real data (normal → no
-  alert, June-failure window → alert; out-of-range → 422).
+- **Docker**: `Dockerfile` (non-root, healthcheck) + `docker-compose.yml`.
+- **CI/CD metric gate** (`pipelines/metric_gate.py` + `.github/workflows/model-eval.yml`):
+  rebuilds the model on real data and fails the build if ROC-AUC/PR-AUC/recall drop
+  below committed floors (gate logic unit-tested in lean CI; passes on real data at
+  0.95/0.39/0.89 vs floors 0.90/0.30/0.75). Adds **pip-audit** dependency scan (CI)
+  + **Trivy** image scan (model-eval).
 
 ## Next steps (in order)
-1. **[Phase 3]** **CI metric gate**: a job that rebuilds the model and fails the
-   build if ROC-AUC/recall regress below a threshold; dependency/image scan.
-2. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
-3. **[Phase 4]** Observability: Prometheus + Grafana, Evidently drift on the live
-   EIA feed → retrain trigger.
-4. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
+1. **[Phase 3]** MLflow **registry stages + rollback/canary** wiring.
+2. **[Phase 4]** Observability: Prometheus + Grafana (system + model metrics),
+   Evidently drift on the live EIA feed → retrain trigger. *The self-healing headline.*
+3. **[later]** Sequence models (LSTM/TCN) + Backblaze fleet data for scale.
 
 ## How to resume
 - Branch: `claude/refine-plan-md-6swc1n` (this is also PR #1).

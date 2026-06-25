@@ -13,10 +13,10 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 ![CI](https://github.com/rpatel0022/ametek-ml-engineer-project/actions/workflows/ci.yml/badge.svg)
 **Status:** Phase 3 — productionizing. The Phase 2 anomaly detector (ROC-AUC 0.95,
 recall 0.89, 19–48 h early warning, [results](docs/phase2_anomaly_results.md)) is
-now served behind a **schema-validated FastAPI app** (`serving/`), packaged in a
-**Docker** image, with the same physical contract guarding the request body that
-guards the training data. Next: a CI metric gate + registry rollback. Continues per
-[PLAN.md](PLAN.md).
+served behind a **schema-validated FastAPI app** (`serving/`) in a **Docker** image,
+and CI/CD now guards it: a **metric gate** rebuilds the model on the real data and
+fails the build if it regresses, plus dependency + image scanning. Next: registry
+rollback, then observability/drift. Continues per [PLAN.md](PLAN.md).
 
 GridSentinel ingests streaming telemetry from a fleet of IoT-connected power
 units, predicts failures and remaining useful life, flags anomalies in real time,
