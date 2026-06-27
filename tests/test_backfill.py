@@ -59,3 +59,15 @@ def test_threshold_changes_outcome():
     strict = backfill_performance(ts, scores, threshold=0.9, events=(EV,))
     assert lenient["recall"] == 1.0
     assert strict["recall"] == 0.0  # nothing clears 0.9
+
+
+def test_roc_auc_rank_formula():
+    """The numpy ROC-AUC (no sklearn) on known cases, incl. ties and one-class."""
+    import math
+
+    from monitoring.backfill import _roc_auc
+
+    assert _roc_auc(np.array([0, 1, 1]), np.array([0.0, 1.0, 1.0])) == 1.0  # perfect
+    assert _roc_auc(np.array([0, 1, 1]), np.array([1.0, 0.0, 0.0])) == 0.0  # inverted
+    assert _roc_auc(np.array([0, 1]), np.array([0.5, 0.5])) == 0.5  # tie → coin flip
+    assert math.isnan(_roc_auc(np.array([1, 1]), np.array([0.1, 0.9])))  # one class → undefined
