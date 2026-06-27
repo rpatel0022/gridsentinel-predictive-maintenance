@@ -28,6 +28,17 @@ MODEL_AUC = {
 }
 LEAD_TIMES = {"2020-04-18": 19.5, "2020-05-29": 0.2, "2020-06-05": 47.8, "2020-07-15": 47.8}
 
+_TESTS_DIR = Path(__file__).resolve().parents[1] / "tests"
+
+
+def _count_tests() -> int:
+    """Live count of test functions, so the published total never goes stale."""
+    import re
+
+    return sum(
+        len(re.findall(r"^def test_", f.read_text(), re.M)) for f in _TESTS_DIR.glob("test_*.py")
+    )
+
 
 def precompute(metropt_csv: str, backblaze_csv: str) -> None:
     from pipelines.anomaly import (
@@ -78,7 +89,7 @@ def precompute(metropt_csv: str, backblaze_csv: str) -> None:
             "p99_ms": 31,
             "cost_savings_pct": 60,
             "ml_test_score": 4.5,
-            "tests": 140,
+            "tests": _count_tests(),
         },
     }
     (ASSETS / "summary.json").write_text(json.dumps(summary, indent=2))
