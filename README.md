@@ -8,6 +8,9 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 
 > _Results at a glance (all from real data). Interactive version:_ `make dashboard`
 > _(Streamlit) — or open the generated `docs/dashboard.html`._
+>
+> _**Live:** [results board](https://rpatel0022.github.io/gridsentinel-predictive-maintenance/)
+> (GitHub Pages) · deploy your own interactive copy in ~2 min — see [DEPLOY.md](DEPLOY.md)._
 
 > _The **~60%** is the measured Phase-1 result: on a held-out failure under strict
 > temporal CV, the cost-tuned XGBoost leak detector cut expected maintenance cost
