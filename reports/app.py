@@ -164,13 +164,13 @@ with tab3:
 with tab4:
     st.subheader("Production MLOps & engineering rigor")
     st.markdown(
-        """
+        f"""
 - **Serving** — schema-validated FastAPI + Docker · p99 31 ms · model registry (promote / rollback / audit)
 - **Self-healing** — drift on the live EIA feed → retrain → metric-gate → promote, else keep current
 - **Observability** — Prometheus + Grafana (system + model metrics) · delayed-label backfill
 - **CI/CD** — metric gate blocks a regressing model · pip-audit + Trivy scans
 - **Edge** — quantized model 5.9× smaller, 4× faster · cloud-vs-edge tradeoff measured
-- **Rigor** — temporal CV (no leakage) · cost-tuned thresholds · **Google ML Test Score 4.5** · 140 tests
+- **Rigor** — temporal CV (no leakage) · cost-tuned thresholds · **Google ML Test Score 4.5** · {h["tests"]} tests
 """
     )
     st.caption("Every claim maps to a file or CI step in the repo — the artifact makes the claim.")

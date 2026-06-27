@@ -61,7 +61,7 @@ threshold, cost = optimal_threshold(y_true, y_score, model)     # ROI-optimal cu
 | Drift detection & iteration | ✅ | PSI/KS on the **live EIA feed** → self-heal promote/rollback — `monitoring/drift.py`, `monitoring/self_heal.py` |
 | Measurable customer ROI | ✅ | Asymmetric cost model + tuned threshold (~30–60% vs schedule) — `src/gridsentinel/cost.py` |
 | Security / compliance | ✅ | SSM secrets, pip-audit + Trivy in CI, model-governance audit trail — `.github/workflows/`, `serving/registry.py` |
-| SWE rigor (tests) | ✅ | 106 tests + [Google ML Test Score 4.5](docs/ml_test_score.md), green CI |
+| SWE rigor (tests) | ✅ | 148 tests + [Google ML Test Score 4.5](docs/ml_test_score.md), green CI |
 | _Bonus:_ Edge ML | ✅ | Measured size/latency/accuracy tradeoff (5.9× smaller, 4× faster) — [edge benchmark](docs/edge_benchmark.md) |
 | _Bonus:_ Agentic AI / RAG | ○ | Optional Phase 6: LLM agent + RAG over UPS manuals → work-order |
 

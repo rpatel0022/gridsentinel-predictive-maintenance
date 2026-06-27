@@ -235,7 +235,7 @@ Copy these into interview prep. Every one is from real data and traceable to a f
 | Edge tradeoff | 5.9× smaller, 4× faster p99 (24→6 ms), same AUC | `docs/edge_benchmark.md` |
 | Serving p99 latency | **31 ms** (< 50 ms SLO) | `docs/load_test_results.md` |
 | Google ML Test Score | **4.5** | `docs/ml_test_score.md` |
-| Test suite | **143 test functions / 27 modules** (CI is the green source of truth) | `tests/` |
+| Test suite | **148 test functions / 28 modules** (CI is the green source of truth) | `tests/` |
 
 ---
 

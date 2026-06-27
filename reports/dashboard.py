@@ -73,7 +73,7 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
     fig.text(
         0.06,
         0.915,
-        "Production predictive-maintenance & fleet-reliability ML system  ·  2 real datasets  ·  full MLOps  ·  143 tests green",
+        f"Production predictive-maintenance & fleet-reliability ML system  ·  2 real datasets  ·  full MLOps  ·  {_count_tests()} tests green",
         fontsize=12.5,
         color=GREY,
     )
@@ -205,6 +205,18 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
     fig.savefig(out, dpi=130, facecolor="white", bbox_inches="tight")
     plt.close(fig)
     return out
+
+
+def _count_tests(tests_dir: str = "tests") -> int:
+    """Live count of test functions, so displayed totals never go stale."""
+    import glob
+    import os
+    import re
+
+    return sum(
+        len(re.findall(r"^def test_", open(f).read(), re.M))
+        for f in glob.glob(os.path.join(tests_dir, "test_*.py"))
+    )
 
 
 def _load_from_assets(assets_dir: str = "reports/assets"):
@@ -354,7 +366,7 @@ def _build_figure(ts, scores, thr, events, model_auc, lead_times, afr_models, af
         ("Edge", "quantized 5.9× smaller / 4× faster · cloud-vs-edge tradeoff measured"),
         (
             "Rigor",
-            "temporal CV (no leakage) · cost-tuned thresholds · ML Test Score 4.5 · 143 tests",
+            f"temporal CV (no leakage) · cost-tuned thresholds · ML Test Score 4.5 · {_count_tests()} tests",
         ),
     ]
     fig.add_trace(
@@ -439,7 +451,7 @@ _SITE_TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <header>
  <h1>⚡ GridSentinel</h1>
  <p>A production-grade, self-healing predictive-maintenance &amp; fleet-reliability ML system — two real datasets, full MLOps lifecycle, every result computed from real data.</p>
- <div class="badges"><span>Anomaly ROC-AUC 0.95</span><span>24,270 real fleet failures</span><span>p99 31 ms</span><span>−60% cost</span><span>ML Test Score 4.5</span><span>143 tests green</span></div>
+ <div class="badges"><span>Anomaly ROC-AUC 0.95</span><span>24,270 real fleet failures</span><span>p99 31 ms</span><span>−60% cost</span><span>ML Test Score 4.5</span><span>{tests} tests green</span></div>
  <div class="links"><a href="{repo}">GitHub repo</a><a href="{repo}/blob/{branch}/README.md">README</a><a href="{repo}/blob/{branch}/docs/model_card.md">Model card</a><a href="{repo}/blob/{branch}/docs/ml_test_score.md">ML Test Score</a><a href="{repo}/blob/{branch}/docs/architecture.md">Architecture</a></div>
 </header>
 <main><div class="card">{chart}</div></main>
@@ -467,7 +479,7 @@ def build_site(
     os.makedirs(out_dir, exist_ok=True)
     index = os.path.join(out_dir, "index.html")
     with open(index, "w") as fh:
-        fh.write(_SITE_TEMPLATE.format(chart=chart, repo=repo, branch=branch))
+        fh.write(_SITE_TEMPLATE.format(chart=chart, repo=repo, branch=branch, tests=_count_tests()))
     if os.path.exists("docs/dashboard.png"):
         shutil.copy("docs/dashboard.png", os.path.join(out_dir, "dashboard.png"))
     return index
