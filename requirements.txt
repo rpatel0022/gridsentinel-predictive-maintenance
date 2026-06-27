@@ -1,0 +1,6 @@
+# Dependencies for the live Streamlit dashboard (Streamlit Community Cloud reads
+# this file). The app reads the committed assets in reports/assets/, so it needs
+# no model build and no secrets. Local dev uses: pip install -e ".[dashboard]".
+streamlit>=1.30
+plotly>=5.18
+pandas>=2
