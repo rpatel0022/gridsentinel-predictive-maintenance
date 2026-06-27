@@ -1,7 +1,7 @@
 # GridSentinel
 
 **A self-healing, IoT-scale predictive-maintenance service that cuts expected
-maintenance cost ~X% vs schedule-based upkeep** — runs in production with full
+maintenance cost up to ~60% vs schedule-based upkeep** — runs in production with full
 MLOps, detects its own drift, retrains automatically, and ships to the edge.
 
 ![GridSentinel results dashboard](docs/dashboard.png)
@@ -9,10 +9,11 @@ MLOps, detects its own drift, retrains automatically, and ships to the edge.
 > _Results at a glance (all from real data). Interactive version:_ `make dashboard`
 > _(Streamlit) — or open the generated `docs/dashboard.html`._
 
-> _`~X%` is the full-system target. **Phase 1 baseline (first real number):** on a
-> held-out failure under strict temporal CV, the cost-tuned XGBoost leak detector
-> cuts expected maintenance cost **~60% vs the best fixed schedule** (ROC-AUC 0.92,
-> ~30% averaged over the scorable folds). Details + the honest caveats:
+> _The **~60%** is the measured Phase-1 result: on a held-out failure under strict
+> temporal CV, the cost-tuned XGBoost leak detector cut expected maintenance cost
+> **~60% vs the best fixed schedule** (ROC-AUC 0.92; **~30% averaged** over the
+> scorable folds — one strong fold, reported honestly). The figure across the full
+> live MLOps loop is future work. Details + caveats:
 > [docs/phase1_baseline_results.md](docs/phase1_baseline_results.md)._
 
 ![CI](https://github.com/rpatel0022/gridsentinel-predictive-maintenance/actions/workflows/ci.yml/badge.svg)
@@ -133,3 +134,7 @@ The artifact makes the claim — each of these is openable:
 
 See [PLAN.md](PLAN.md) for the full strategy, phased build, and how each phase
 proves itself.
+
+## License
+
+Released under the [MIT License](LICENSE).
