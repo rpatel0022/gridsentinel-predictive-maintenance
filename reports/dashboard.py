@@ -430,7 +430,7 @@ def build_html(
     fig = _build_figure(*data)
     if return_fig:
         return fig
-    fig.write_html(out, include_plotlyjs=plotlyjs, full_html=True)
+    fig.write_html(out, include_plotlyjs=plotlyjs, full_html=True, config={"responsive": True})
     return out
 
 
@@ -475,7 +475,7 @@ def build_site(
 
     fig = build_html(assets_dir=assets_dir, return_fig=True)
     fig.update_layout(title=None, margin=dict(t=40, l=70, r=50, b=50))
-    chart = fig.to_html(full_html=False, include_plotlyjs="cdn")
+    chart = fig.to_html(full_html=False, include_plotlyjs="cdn", config={"responsive": True})
     os.makedirs(out_dir, exist_ok=True)
     index = os.path.join(out_dir, "index.html")
     with open(index, "w") as fh:
