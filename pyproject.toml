@@ -8,7 +8,7 @@ license = { text = "MIT" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.5", "httpx>=0.27"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "httpx>=0.27"]
 pipelines = ["pandas>=2", "pandera>=0.20"]
 modeling = ["pandas>=2", "numpy>=1.26", "scikit-learn>=1.4", "xgboost>=2", "mlflow>=2.12"]
 serving = ["fastapi>=0.110", "uvicorn>=0.29", "joblib>=1.3", "scikit-learn>=1.4", "pandas>=2", "prometheus-client>=0.20"]
@@ -33,3 +33,10 @@ select = ["E", "F", "I", "UP", "B"]
 pythonpath = ["src", "."]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.coverage.run]
+source = ["src", "pipelines", "serving", "monitoring", "reports"]
+omit = ["*/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
