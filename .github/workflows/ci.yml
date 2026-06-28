@@ -30,6 +30,23 @@ jobs:
       - name: Tests
         run: pytest
 
+  coverage:
+    name: Coverage (advisory)
+    runs-on: ubuntu-latest
+    # Non-blocking: a full-deps run reports real coverage but never red-gates the
+    # badge — the lean `quality` job above is the gate.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install (full deps for full coverage)
+        run: pip install -e ".[dev,pipelines,modeling,serving,dashboard]"
+      - name: pytest --cov
+        run: pytest --cov --cov-report=term-missing
+
   security:
     name: Dependency scan
     runs-on: ubuntu-latest
