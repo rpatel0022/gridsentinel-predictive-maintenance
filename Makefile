@@ -66,8 +66,8 @@ dashboard-assets: backblaze-data  ## Precompute small dashboard assets from real
 dashboard:  ## Launch the interactive Streamlit results dashboard
 	streamlit run reports/app.py
 
-dashboard-static:  ## Build the static PNG + interactive HTML dashboards
-	python -m reports.dashboard --metropt "$(DATA)" --backblaze data/backblaze_drive_dates.csv --format both --out docs/dashboard.png
+dashboard-static:  ## Build the static PNG + interactive HTML dashboards from committed assets
+	python -m reports.dashboard --format both --out docs/dashboard.png
 
 pages:  ## Build the GitHub Pages portfolio (root index.html) from committed assets
 	python -m reports.dashboard --format pages   # writes ./index.html for branch-based Pages
