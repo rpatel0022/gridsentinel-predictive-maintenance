@@ -69,10 +69,9 @@ dashboard:  ## Launch the interactive Streamlit results dashboard
 dashboard-static:  ## Build the static PNG + interactive HTML dashboards
 	python -m reports.dashboard --metropt "$(DATA)" --backblaze data/backblaze_drive_dates.csv --format both --out docs/dashboard.png
 
-pages:  ## Build the static GitHub Pages portfolio site from committed assets
-	python -m reports.dashboard --format pages
-	cp site/index.html index.html   # root copy for branch-based Pages (Deploy from a branch)
-	touch .nojekyll                  # serve files as-is (no Jekyll)
+pages:  ## Build the GitHub Pages portfolio (root index.html) from committed assets
+	python -m reports.dashboard --format pages   # writes ./index.html for branch-based Pages
+	touch .nojekyll                              # serve files as-is (no Jekyll)
 
 selfheal:  ## Run one retrain -> gate -> promote/keep cycle
 	python -m monitoring.self_heal "$(DATA)"

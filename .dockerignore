@@ -16,5 +16,8 @@ mlflow.db
 *.joblib
 docs/
 tests/
+site/
+index.html
+STATUS.md
 PLAN.md
 _local_notes_*.txt

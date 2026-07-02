@@ -7,8 +7,8 @@ signals, sampled over time, with real failure events from maintenance reports.
 This module encodes the *expected shape* of that data as a pandera schema so every
 row that enters the feature pipeline is checked for schema drift, out-of-range
 values, nulls, and — critically — time ordering (shuffling before a temporal split
-is the classic leakage bug). Validating inputs is Upgrade 2 from PLAN.md: a real
-data-validation suite is the cleanest differentiator most portfolios skip.
+is the classic leakage bug). A real data-validation suite at the pipeline boundary is
+a core reliability practice most prototypes skip.
 
 Column names/dtypes follow the published dataset documentation; ``strict=False``
 lets incidental columns (e.g. GPS, row index) pass. **Physical ranges were

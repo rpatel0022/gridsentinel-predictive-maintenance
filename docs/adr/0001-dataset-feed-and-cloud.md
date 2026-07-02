@@ -46,7 +46,8 @@ an API key, and exhibits natural weather/season/time-of-day
 drift — so the drift monitor catches *real* non-stationarity rather than noise we
 injected. (Note the deliberate data seam: EIA has no failure labels; it drives
 the production/monitoring layer with absent/delayed ground truth, while the
-labeled datasets train the models. See PLAN.md → Data strategy.)
+labeled datasets train the models. See [architecture.md](../architecture.md) →
+the data seam.)
 
 **Cloud — AWS.** The most broadly-adopted cloud for ML services (ECS/Fargate, S3,
 SageMaker), and its free tier covers the live-demo footprint.

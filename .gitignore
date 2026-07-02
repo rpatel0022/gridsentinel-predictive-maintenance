@@ -35,8 +35,10 @@ docs/dashboard.html
 *.env
 !.env.example
 
-# Local-only reference notes (kept out of the public repo)
+# Local-only working docs (kept out of the public repo)
 _local_notes_*.txt
+STATUS.md
+PLAN.md
 
 # OS / editor
 .DS_Store
