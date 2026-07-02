@@ -3,9 +3,10 @@
 Produces a single PNG that, at a glance, shows what the system is and that it works:
 the anomaly detector firing before real failures, the model leaderboard, early-warning
 lead times, the Backblaze fleet failure rates, and the cost/ROI headline. Everything is
-computed from the real data + measured results — no mock numbers.
+computed from the real data + measured results — no mock numbers. All formats build from
+the committed assets in ``reports/assets/`` (regenerate those with ``make dashboard-assets``).
 
-    python -m reports.dashboard --metropt <csv> --backblaze <csv> --out docs/dashboard.png
+    python -m reports.dashboard --format both --out docs/dashboard.png
 """
 # ruff: noqa: E501 — presentational title/caption strings read better unwrapped
 
@@ -61,12 +62,18 @@ def _afr(backblaze_csv: str):
     return afr.index.tolist(), afr["afr"].tolist()
 
 
-def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
+def build(
+    metropt_csv=None, backblaze_csv=None, out="docs/dashboard.png", *, assets_dir="reports/assets"
+) -> str:
+    """Render the static one-page results PNG from the committed assets (reproducible
+    without the raw dataset). ``metropt_csv``/``backblaze_csv`` are accepted for CLI
+    compatibility but unused."""
     plt.rcParams.update({"font.size": 10, "axes.edgecolor": GREY, "axes.linewidth": 0.8})
     fig = plt.figure(figsize=(16, 9.5), facecolor="white")
     gs = fig.add_gridspec(
         3, 3, hspace=0.55, wspace=0.3, top=0.88, bottom=0.07, left=0.06, right=0.97
     )
+    ts, scores, thr, events, _mauc, _lead, models_afr, afrs = _load_from_assets(assets_dir)
 
     # Title banner
     fig.text(0.06, 0.955, "GridSentinel", fontsize=30, fontweight="bold", color=NAVY)
@@ -80,8 +87,9 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
 
     # --- Hero: anomaly score over time, failures shaded ---
     ax = fig.add_subplot(gs[0, :])
-    ts, scores, thr, events = _anomaly_timeline(metropt_csv)
-    smooth = pd.Series(scores).rolling(72, center=True, min_periods=1).mean()  # ~12h mean
+    smooth = (
+        pd.Series(scores).rolling(12, center=True, min_periods=1).mean()
+    )  # ~12h on hourly assets
     for ev in events:
         ax.axvspan(ev.start, ev.end, color=AMBER, alpha=0.85, zorder=1)
     ax.axvspan(
@@ -142,8 +150,7 @@ def build(metropt_csv: str, backblaze_csv: str, out: str) -> str:
 
     # --- Backblaze fleet AFR ---
     ax = fig.add_subplot(gs[1, 2])
-    models, afrs = _afr(backblaze_csv)
-    ax.barh(models, [a * 100 for a in afrs], color=RED)
+    ax.barh(models_afr, [a * 100 for a in afrs], color=RED)
     ax.invert_yaxis()
     ax.set_xlabel("annualized failure rate (%)")
     ax.set_title(
@@ -497,9 +504,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--repo", default=REPO)
     p.add_argument("--branch", default="main")
     a = p.parse_args(argv)
+    # All formats build from the committed assets by default; pass --metropt/--backblaze
+    # only to recompute the interactive HTML from the raw dataset.
     if a.format in ("png", "both"):
-        if not a.metropt or not a.backblaze:
-            p.error("--metropt and --backblaze are required for the png format")
         print("wrote", build(a.metropt, a.backblaze, a.out.replace(".html", ".png")))
     if a.format in ("html", "both"):
         print("wrote", build_html(a.metropt, a.backblaze, a.out.replace(".png", ".html")))
