@@ -462,16 +462,16 @@ _SITE_TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 def build_site(
     metropt_csv=None,
     backblaze_csv=None,
-    out_dir="site",
+    out_dir=".",
     *,
     repo: str,
     branch: str,
     assets_dir: str = "reports/assets",
 ) -> str:
-    """Build a self-contained GitHub-Pages portfolio site (interactive board + header).
-    Sourced from the committed assets so it rebuilds without the raw dataset."""
+    """Build the GitHub-Pages portfolio page as the repo-root ``index.html`` (served by
+    branch-based Pages). Sourced from the committed assets so it rebuilds without the raw
+    dataset."""
     import os
-    import shutil
 
     fig = build_html(assets_dir=assets_dir, return_fig=True)
     fig.update_layout(title=None, margin=dict(t=40, l=70, r=50, b=50))
@@ -480,8 +480,6 @@ def build_site(
     index = os.path.join(out_dir, "index.html")
     with open(index, "w") as fh:
         fh.write(_SITE_TEMPLATE.format(chart=chart, repo=repo, branch=branch, tests=_count_tests()))
-    if os.path.exists("docs/dashboard.png"):
-        shutil.copy("docs/dashboard.png", os.path.join(out_dir, "dashboard.png"))
     return index
 
 

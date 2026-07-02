@@ -17,7 +17,7 @@ You'll get a public URL like `https://<your-app>.streamlit.app`. Every push to
 ## 2. Static results board — GitHub Pages (already live)
 
 <https://rpatel0022.github.io/gridsentinel-predictive-maintenance/> — the Plotly
-results board, served from `site/` (regenerate with `make pages`).
+results board, served from the repo-root `index.html` (regenerate with `make pages`).
 
 ## 3. Live inference API — Render / Fly / a container host (optional)
 
